@@ -1,15 +1,22 @@
 <template>
     <tr class="locale_item_cell" @click="editModeStart()">
-        <td width="10%" class="tr_index">{{$vnode.key + 1}}.</td>
-        <td width="20%" class="tr_key">
+        <td width="8%" class="tr_index">{{$vnode.key + 1}}.</td>
+        <td width="10%" class="tr_key">
             <span v-show="!isEdit">{{localeObj.strid}}</span>
             <input v-show="isEdit" class="tr_key" v-model="editLocaleObj['strid']">
         </td>
-        <td width="45%" class="tr_kr">
+        <td width="8%" class="tr_key">
+            <span v-show="!isEdit">{{localeObj.tag}}</span>
+            <input v-show="isEdit" class="tr_key" v-model="editLocaleObj['tag']">
+        </td>
+        <td width="23%" class="tr_key">
+            <span>{{localeObj[defaultLang]}}</span>
+        </td>
+        <td width="28%" class="tr_kr">
             <span v-show="!isEdit">{{localeObj[pSelectLang]}}</span>
             <input v-show="isEdit" class="tr_kr" v-model="editLocaleObj[pSelectLang]">
         </td>
-        <td width="20%">
+        <td width="17%">
             <button v-show="!isEdit" @click.stop="deleteTranslate()">삭제</button>
             <button v-show="isEdit" @click.stop="saveEdit()">저장</button>
             <button v-show="isEdit" @click.stop="editCancel()">취소</button>
@@ -18,6 +25,7 @@
 </template>
 <script>
     import gEventBus from './../service/gEventBus';
+    import config from "../config/config";
 
     export default {
         props : {
@@ -33,6 +41,9 @@
             }
         },
         computed : {
+            defaultLang : function () {
+                return config.baseLanguage;
+            }
         },
         created : function() {
             this.localeObj = JSON.parse(JSON.stringify(this.pLocaleObj));
@@ -57,6 +68,9 @@
                 this.isEdit = false;
             },
             saveEdit: function() {
+                if (this.pSelectLang === this.defaultLang) {
+                    this.editLocaleObj.base = this.editLocaleObj[this.pSelectLang];
+                }
                 this.$store.dispatch('UPDATE_TRANSLATE', {
                     stringId: this.pId,
                     localeObj: this.editLocaleObj,

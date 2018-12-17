@@ -62,10 +62,12 @@
             <div v-if="renderTranslateList" class="locale_item_wrap">
                 <table cellpadding="30">
                     <tr>
-                        <th width="10%">No.</th>
-                        <th width="20%">StringID</th>
-                        <th width="45%">번역어</th>
-                        <th width="20%">Button</th>
+                        <th width="8%">No.</th>
+                        <th width="10%">StringID</th>
+                        <th width="8%">tag</th>
+                        <th width="23%">Base({{langTitleMap[defaultLang]}})</th>
+                        <th width="28%">번역어</th>
+                        <th width="17%">Button</th>
                     </tr>
 
                     <locale_item_cell v-for="(item, index) in translateList"
@@ -145,6 +147,9 @@
             },
             langTitleMap : function () {
                 return config.langTitleMap;
+            },
+            defaultLang : function () {
+                return config.baseLanguage;
             }
         },
         created : function() {

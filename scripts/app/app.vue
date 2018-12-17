@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header>
-            <h2>TOASTCAM <span>Front Localization</span> <span style="margin-left:10px;"></span></h2>
+            <h2 class="main_title" @click="moveToMain">TOASTCAM <span>Front Localization</span> <span style="margin-left:10px;"></span></h2>
             <nav>
                 <!--router-link v-bind:to="'managePage'">카메라 관리</router-link-->
                 <!--router-link v-bind:to="'installPage'">카메라 추가</router-link>
@@ -18,6 +18,8 @@
 </template>
 
 <script>
+    import { router } from './main';
+
     export default {
         name: 'app',
         computed : {
@@ -26,6 +28,9 @@
             }
         },
         methods: {
+            moveToMain: function () {
+                router.push({path: 'managePage'});
+            }
         }
     }
 </script>
@@ -46,6 +51,9 @@
                 font-size:22px;
                 span{
                     font-weight:100;
+                }
+                &.main_title{
+                    cursor:pointer;
                 }
             }
             nav{

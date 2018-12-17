@@ -58,6 +58,7 @@ const localeAPI = {
         let i, len, dataObj = {
             key: strDataJSON.stringId,
             strid: strDataJSON.localeObj.strid,
+            tag: strDataJSON.localeObj.tag,
             base: strDataJSON.localeObj.base ? strDataJSON.localeObj.base : ''
         };
         for (i = 0, len = config.suportLanguages.length; i < len; i+=1) {
