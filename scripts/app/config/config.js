@@ -3,6 +3,7 @@ import projectPage from './../component/project_page';
 
 export default {
     routes: [
+        {path: '/', component: managePage},
         {path: '/managePage', component: managePage},
         {path: '/projectPage', component: projectPage}
     ],

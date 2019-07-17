@@ -5,9 +5,10 @@
         <div class="project_wrap">
             <div v-for="(item, index) in projectList">
                 <button class="project_btn" v-on:click="selectProject(item)">
-                    <span class="project_name">{{item.name}} 프로젝트</span>
+                    <span class="project_name">{{item.name}}</span>
                 </button>
                 <button class="lang_set_btn" v-on:click="showLanguageSelectDlg(item)">언어설정</button>
+                <button style="background-color:maroon;" class="lang_set_btn" v-on:click="showProjectDeleteDlg(item)">삭제</button>
             </div>
         </div>
         <div class="create_project">
@@ -25,12 +26,18 @@
                 v-bind:project="selectedProject"
                 v-on:destroy="onCheckDlgDestroy()">
         </check_dlg>
+        <remove_dlg
+                v-if="showDeleteDlg"
+                v-bind:project="selectedProject"
+                v-on:destroy="onDeleteDlgDestroy()">
+        </remove_dlg>
     </div>
 </template>
 
 <script>
     import input_dlg from './input_dialog';
     import check_dlg from './check_dialog';
+    import remove_dlg from './project_remove_dialog';
     import { router } from '../main';
 
     export default {
@@ -38,6 +45,7 @@
             return {
                 showInputDlg : false,
                 showCheckDlg : false,
+                showDeleteDlg : false,
                 selectedProject : null,
                 projectCreateTxt : "Project 생성",
                 projectLangTxt : "언어설정",
@@ -58,23 +66,31 @@
         },
         methods : {
             selectProject: function(projectJSON) {
-                this.$store.dispatch('SET_CURRENT_PROJECT', projectJSON);
-                router.push({path: 'projectPage'});
+                //this.$store.dispatch('SET_CURRENT_PROJECT', projectJSON);
+                router.push({path: 'projectPage?' + 'name=' + projectJSON.name + '&uuid=' + projectJSON.uuid + '&languages=' + projectJSON.languages});
             },
             showLanguageSelectDlg: function(project) {
                 this.selectedProject = project;
                 this.showCheckDlg = true;
+            },
+            showProjectDeleteDlg: function(project) {
+                this.selectedProject = project;
+                this.showDeleteDlg = true;
             },
             onInputDlgDestroy: function (param) {
                 this.showInputDlg = false;
             },
             onCheckDlgDestroy: function (param) {
                 this.showCheckDlg = false;
+            },
+            onDeleteDlgDestroy: function (param) {
+                this.showDeleteDlg = false;
             }
         },
         components : {
             input_dlg,
-            check_dlg
+            check_dlg,
+            remove_dlg
         }
     }
 </script>
@@ -89,7 +105,7 @@
 
         .project_wrap {
             margin-top:10px;
-            width:500px;
+            width:700px;
             button.lang_set_btn {
                 background:#9abf7f;
                 border-radius:30px;

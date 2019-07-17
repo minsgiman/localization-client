@@ -41,6 +41,6 @@ const vueApp = new Vue({
     components: { app }
 });
 
-router.push({path: 'managePage'});
+//router.push({path: 'managePage'});
 
 export { router, util };

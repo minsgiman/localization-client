@@ -18,12 +18,38 @@ function checkStrIdExist(list, strId, key) {
     return isExist;
 }
 
+function sortTranslateList(list, type) {
+    list.sort(function (a, b) {
+        var aLabel, bLabel;
+
+        if (type.indexOf('strid') != -1) {
+            aLabel = (a && a.locale && a.locale.strid) ? a.locale.strid.toLowerCase() : '';
+            bLabel = (b && b.locale && b.locale.strid) ? b.locale.strid.toLowerCase() : '';
+        } else if (type.indexOf('base') != -1) {
+            aLabel = (a && a.locale && a.locale.base) ? a.locale.base.toLowerCase() : '';
+            bLabel = (b && b.locale && b.locale.base) ? b.locale.base.toLowerCase() : '';
+        } else {
+            aLabel = (a && a.id) ? a.id.toLowerCase() : '';
+            bLabel = (b && b.id) ? b.id.toLowerCase() : '';
+        }
+
+        if (type.indexOf('rev') != -1) {
+            return aLabel > bLabel ? -1 : aLabel < bLabel ? 1 : 0;
+        } else {
+            return aLabel < bLabel ? -1 : aLabel > bLabel ? 1 : 0;
+        }
+    });
+    return list;
+}
+
 const store = new Vuex.Store({
     state: {
         projectList: [],
         currentTranslateList: [],
         currentProject: {},
-        isLoading: false
+        currentEditTranslateId: '',
+        isLoading: false,
+        selectSortType: 'strid' // strid, strid-rev, base, base-rev, key, key-rev
     },
     getters: {
         // installListCount: state => {
@@ -31,13 +57,37 @@ const store = new Vuex.Store({
         // }
     },
     actions: {
+        SORT_TRANSLATE_LIST : function(context, sortType) {
+            let translateList = sortTranslateList(store.state.currentTranslateList, sortType);
+            context.commit('UPDATE_TRANSLATE_LIST', translateList);
+            context.commit('UPDATE_SELECT_SORT_TYPE', sortType);
+            gEventBus.$emit('UPDATE_TRANSLATE_LIST');
+            setTimeout(function() {
+                context.commit('UPDATE_LOADING_STATE', false);
+            }, 100);
+        },
+        SET_LOADING : function(context) {
+            context.commit('UPDATE_LOADING_STATE', true);
+        },
+        UPDATE_EDIT_TRANSLATE_ID : function(context, strId) {
+            context.commit('UPDATE_EDIT_TRANSLATE_ID', strId);
+        },
+        FETCH_LOG_LIST : function(context) {
+            localeApi.getLogList(store.state.currentProject.uuid, (response) => {
+                let logList = (response && response.result) ? response.result : [];
+                gEventBus.$emit('FETCH_LOG_LIST', logList);
+            });
+        },
         FETCH_TRANSLATE_LIST : function(context) {
             context.commit('UPDATE_LOADING_STATE', true);
             localeApi.getTranslateList(store.state.currentProject.uuid, (response) => {
                 let translateList = (response && response.result) ? response.result : [];
-                context.commit('UPDATE_LOADING_STATE', false);
+                translateList = sortTranslateList(translateList, store.state.selectSortType);
                 context.commit('UPDATE_TRANSLATE_LIST', translateList);
                 gEventBus.$emit('UPDATE_TRANSLATE_LIST');
+                setTimeout(function () {
+                    context.commit('UPDATE_LOADING_STATE', false);
+                }, 500);
             });
         },
         FETCH_TRANSLATE : function(context, strId) {
@@ -50,14 +100,17 @@ const store = new Vuex.Store({
             context.commit('UPDATE_LOADING_STATE', true);
             localeApi.addTranslate(strDataJSON, store.state.currentProject, (response) => {
                 if (response && response.code === 'ok') {
+                    context.commit('ADD_TRANSLATE_TO_CURRENT', response.data);
                     setTimeout(function () {
-                        localeApi.getTranslateList(store.state.currentProject.uuid, (res) => {
-                            let translateList = (res && res.result) ? res.result : [];
-                            context.commit('UPDATE_LOADING_STATE', false);
-                            context.commit('UPDATE_TRANSLATE_LIST', translateList);
-                            gEventBus.$emit('UPDATE_TRANSLATE_LIST');
-                        });
-                    }, 500);
+                        context.commit('UPDATE_LOADING_STATE', false);
+                        // localeApi.getTranslateList(store.state.currentProject.uuid, (res) => {
+                        //     let translateList = (res && res.result) ? res.result : [];
+                        //     translateList = sortTranslateList(translateList, store.state.selectSortType);
+                        //     context.commit('UPDATE_TRANSLATE_LIST', translateList);
+                        //     gEventBus.$emit('UPDATE_TRANSLATE_LIST');
+                        //     context.commit('UPDATE_LOADING_STATE', false);
+                        // });
+                    }, 0);
                     gEventBus.$emit('ADD_TRANSLATE', true);
                 } else {
                     context.commit('UPDATE_LOADING_STATE', false);
@@ -72,19 +125,55 @@ const store = new Vuex.Store({
                 gEventBus.$emit('UPDATE_TRANSLATE_' + strDataJSON.stringId, false);
                 context.commit('UPDATE_LOADING_STATE', false);
             } else {
+                strDataJSON.project = store.state.currentProject.name;
                 localeApi.updateTranslate(strDataJSON, (response) => {
                     if (response && response.code === 'ok') {
                         gEventBus.$emit('UPDATE_TRANSLATE_' + strDataJSON.stringId, true);
+                        context.commit('UPDATE_TRANSLATE_TO_CURRENT', response.data);
+                        setTimeout(function () {
+                            context.commit('UPDATE_LOADING_STATE', false);
+                        }, 0);
+                        // localeApi.getTranslateList(store.state.currentProject.uuid, (res) => {
+                        //     let translateList = (res && res.result) ? res.result : [];
+                        //     translateList = sortTranslateList(translateList, store.state.selectSortType);
+                        //     context.commit('UPDATE_TRANSLATE_LIST', translateList);
+                        //     gEventBus.$emit('UPDATE_TRANSLATE_LIST');
+                        //     setTimeout(function () {
+                        //         context.commit('UPDATE_LOADING_STATE', false);
+                        //     }, 500);
+                        // });
                     } else {
                         gEventBus.$emit('UPDATE_TRANSLATE_' + strDataJSON.stringId, false);
+                        context.commit('UPDATE_LOADING_STATE', false);
                     }
-                    context.commit('UPDATE_LOADING_STATE', false);
                 });
             }
         },
         REMOVE_TRANSLATE : function(context, stringId) {
             context.commit('UPDATE_LOADING_STATE', true);
-            localeApi.removeTranslate(stringId, (response) => {
+            localeApi.removeTranslate(stringId, store.state.currentProject.name, (response) => {
+                if (response && response.code === 'ok') {
+                    context.commit('REMOVE_TRANSLATE_TO_CURRENT', stringId);
+                    setTimeout(function () {
+                        context.commit('UPDATE_LOADING_STATE', false);
+                        // localeApi.getTranslateList(store.state.currentProject.uuid, (res) => {
+                        //     let translateList = (res && res.result) ? res.result : [];
+                        //     translateList = sortTranslateList(translateList, store.state.selectSortType);
+                        //     context.commit('UPDATE_TRANSLATE_LIST', translateList);
+                        //     gEventBus.$emit('UPDATE_TRANSLATE_LIST');
+                        //     context.commit('UPDATE_LOADING_STATE', false);
+                        // });
+                    }, 0);
+                    gEventBus.$emit('REMOVE_TRANSLATE', true);
+                } else {
+                    context.commit('UPDATE_LOADING_STATE', false);
+                    gEventBus.$emit('REMOVE_TRANSLATE', false);
+                }
+            });
+        },
+        REMOVE_ALL_TRANSLATE : function(context, data) {
+            context.commit('UPDATE_LOADING_STATE', true);
+            localeApi.removeAllTranslateInProject(data.name, data.uuid, (response) => {
                 if (response && response.code === 'ok') {
                     setTimeout(function () {
                         localeApi.getTranslateList(store.state.currentProject.uuid, (res) => {
@@ -98,6 +187,24 @@ const store = new Vuex.Store({
                 } else {
                     context.commit('UPDATE_LOADING_STATE', false);
                     gEventBus.$emit('REMOVE_TRANSLATE', false);
+                }
+            });
+        },
+        REMOVE_PROJECT : function(context, data) {
+            context.commit('UPDATE_LOADING_STATE', true);
+            localeApi.removeProject(data.name, data.uuid, (response) => {
+                if (response && response.code === 'ok') {
+                    setTimeout(function () {
+                        localeApi.getProjects((response) => {
+                            let projectList = (response && response.list) ? response.list : [];
+                            context.commit('UPDATE_PROJECT_LIST', projectList);
+                            context.commit('UPDATE_LOADING_STATE', false);
+                            gEventBus.$emit('REMOVE_PROJECT', true);
+                        });
+                    }, 500);
+                } else {
+                    context.commit('UPDATE_LOADING_STATE', false);
+                    gEventBus.$emit('REMOVE_PROJECT', false);
                 }
             });
         },
@@ -157,8 +264,33 @@ const store = new Vuex.Store({
         UPDATE_TRANSLATE_LIST : function(state, list) {
             state.currentTranslateList = list;
         },
+        ADD_TRANSLATE_TO_CURRENT : function(state, data) {
+            state.currentTranslateList.splice(0, 0, data);
+        },
+        UPDATE_TRANSLATE_TO_CURRENT : function(state, data) {
+            let i, len = state.currentTranslateList.length;
+            for (i = 0; i < len; i+=1) {
+                if (state.currentTranslateList[i].id === data.id) {
+                    state.currentTranslateList[i] = data;
+                }
+            }
+        },
+        REMOVE_TRANSLATE_TO_CURRENT : function(state, strid) {
+            let i, len = state.currentTranslateList.length;
+            for (i = 0; i < len; i+=1) {
+                if (state.currentTranslateList[i] && state.currentTranslateList[i].id === strid) {
+                    state.currentTranslateList.splice(i, 1);
+                }
+            }
+        },
         UPDATE_LOADING_STATE : function(state, isLoading) {
             state.isLoading = isLoading;
+        },
+        UPDATE_EDIT_TRANSLATE_ID : function(state, strid) {
+            state.currentEditTranslateId = strid;
+        },
+        UPDATE_SELECT_SORT_TYPE : function(state, type) {
+            state.selectSortType = type;
         }
     }
 });

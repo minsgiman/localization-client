@@ -1,6 +1,6 @@
 <template>
-    <tr class="locale_item_cell" @click="editModeStart()">
-        <td width="8%" class="tr_index">{{$vnode.key + 1}}.</td>
+    <tr class="locale_item_cell" @click="editModeStart()" @keyup.enter="saveEdit()">
+        <td width="8%" class="tr_index">{{pIdx + 1}}.</td>
         <td width="10%" class="tr_key">
             <span v-show="!isEdit">{{localeObj.strid}}</span>
             <input v-show="isEdit" class="tr_key" v-model="editLocaleObj['strid']">
@@ -14,10 +14,11 @@
         </td>
         <td width="28%" class="tr_kr">
             <span v-show="!isEdit">{{localeObj[pSelectLang]}}</span>
-            <input v-show="isEdit" class="tr_kr" v-model="editLocaleObj[pSelectLang]">
+            <textarea v-show="isEdit" class="tr_kr" v-model="editLocaleObj[pSelectLang]" @keydown.enter="textEnterKey"></textarea>
         </td>
         <td width="17%">
             <button v-show="!isEdit" @click.stop="deleteTranslate()">삭제</button>
+            <button v-show="!isEdit" @click.stop="addCopyTranslate()">복사추가</button>
             <button v-show="isEdit" @click.stop="saveEdit()">저장</button>
             <button v-show="isEdit" @click.stop="editCancel()">취소</button>
         </td>
@@ -31,18 +32,24 @@
         props : {
             pId: {type: String, default: ""},
             pSelectLang: {type: String, default: ""},
-            pLocaleObj: {type: Object, default: {}}
+            pLocaleObj: {type: Object, default: {}},
+            pIdx: {type: Number, default: 0}
         },
         data : function() {
             return {
                 localeObj: {},
-                editLocaleObj: {},
-                isEdit: false
+                editLocaleObj: {}
             }
         },
         computed : {
             defaultLang : function () {
                 return config.baseLanguage;
+            },
+            currentEditTranslateId : function () {
+                return this.$store.state.currentEditTranslateId;
+            },
+            isEdit: function () {
+                return this.pId === this.currentEditTranslateId;
             }
         },
         created : function() {
@@ -53,19 +60,31 @@
         },
         beforeDestroy : function () {
             gEventBus.$off('UPDATE_TRANSLATE_' + this.pId);
+            if (this.isEdit) {
+                this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', '');
+            }
         },
         methods : {
             deleteTranslate: function() {
                 this.$emit('deleteTranslate');
             },
+            addCopyTranslate: function() {
+                    let key, data = {};
+                    for (key in this.localeObj) {
+                        data[key] = this.localeObj[key];
+                    }
+                    delete data.base;
+                    delete data.strid;
+                    this.$store.dispatch('ADD_TRANSLATE', data);
+            },
             editModeStart: function() {
                 if (!this.isEdit) {
                     this.editLocaleObj = JSON.parse(JSON.stringify(this.localeObj));
-                    this.isEdit = true;
+                    this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', this.pId);
                 }
             },
             editCancel: function() {
-                this.isEdit = false;
+                this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', '');
             },
             saveEdit: function() {
                 if (this.pSelectLang === this.defaultLang) {
@@ -76,13 +95,16 @@
                     localeObj: this.editLocaleObj,
                 });
             },
+            textEnterKey: function(event) {
+                event.preventDefault();
+            },
             onUpdateTranslate: function(result) {
                 if(result) {
                     this.localeObj = JSON.parse(JSON.stringify(this.editLocaleObj));
                 } else {
                     alert("번역어 업데이트에 실패하였습니다.");
                 }
-                this.isEdit = false;
+                this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', '');
             },
         }
     }
@@ -138,6 +160,16 @@
         }
         .tr_eng {
             color:blue;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: solid 1px #ccc;
+            border-radius: 5px;
+            font-size:14px;
+            resize: none;
         }
     }
 </style>

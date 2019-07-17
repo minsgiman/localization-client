@@ -6,7 +6,7 @@
             <div class="btn_wrap">
                 <button class="btn_json_down btn green rounded" v-on:click="showLangSelectDlg('json')">JSON 다운로드</button>
                 <button class="btn_json_down btn purple rounded" v-on:click="showLangSelectDlg('xml')">xml 다운로드</button>
-                <button class="btn_json_down btn cyan rounded" v-on:click="showLangSelectDlg('strings')">strings 다운로드</button>
+                <button class="btn_json_down btn cyan rounded" v-on:click="translateExcelDownload()">excel 다운로드</button>
                 <button class="btn_json_down btn red rounded" v-on:click="showLangSelectDlg('ascii')">ASCII 다운로드</button>
             </div>
 
@@ -33,7 +33,7 @@
                             <form id="upload_form" @submit="checkForm" enctype="multipart/form-data" method="post" v-bind:action="action">
                                 <span>
                                     <span><label for="uploadFile">xlsx 파일을 선택해주세요.</label></span>
-                                    <span><input type="file" v-bind:name="projectUUID" id="uploadFile"/></span>
+                                    <span><input type="file" v-bind:name="projectName" id="uploadFile"/></span>
                                 </span>
                                 <span id="upload_wrap">
                                     <label for="submit_file">업로드</label>
@@ -57,6 +57,20 @@
                         {{ langTitleMap[lang] }}
                     </option>
                 </select>
+
+                <span style="margin-left:30px;">정렬방법 : </span>
+                <select v-model="selectSortType" @change="sortTypeChange">
+                    <option disabled value="">Please select one</option>
+                    <option value="strid">StringID 순</option>
+                    <option value="strid-rev">StringID 역순</option>
+                    <option value="base">Base 순</option>
+                    <option value="base-rev">Base 역순</option>
+                    <option value="key">등록순</option>
+                    <option value="key-rev">등록역순</option>
+                </select>
+                <input class="tag_search" v-model="tagSearch" placeholder="태그검색" type="text">
+                <button class="remove_all_btn" @click="showAllTrRemoveDlg = true;">전체삭제</button>
+                <button class="remove_all_btn" @click="showLogList()">로그보기</button>
             </div>
 
             <div v-if="renderTranslateList" class="locale_item_wrap">
@@ -71,11 +85,16 @@
                     </tr>
 
                     <locale_item_cell v-for="(item, index) in translateList"
-                                      :pId="item.id" :pLocaleObj="item.locale" :pSelectLang="selectedLang" :key="index"
+                                      v-if="!tagSearch || (tagSearch && tagSearch === item.locale.tag)"
+                                      :pId="item.id" :pLocaleObj="item.locale" :pSelectLang="selectedLang" :pIdx="index" :key="item.id"
                                       v-on:deleteTranslate="onDeleteTranslate(item.id)">
                     </locale_item_cell>
                 </table>
             </div>
+
+            <img class="go_bottom" src="/img/btn-next-10-p-default.png" @click="goBottom">
+            <img class="go_top" src="/img/btn-next-10-p-default.png" @click="goTop">
+
         </div>
         <div v-show="showSelectLang == true" class="lang-select-container">
             <h2>다운로드 할 언어를 선택하세요</h2>
@@ -96,6 +115,15 @@
                 v-bind:deleteId="deleteId"
                 v-on:destroy="onTrRemoveDlgDestroy()">
         </tr_remove_dlg>
+        <all_remove_dlg
+                v-if="showAllTrRemoveDlg"
+                v-on:destroy="onAllTrRemoveDlgDestroy()">
+        </all_remove_dlg>
+        <loglist_dlg
+                v-if="showLogListDlg"
+                v-bind:loglist="loglist"
+                v-on:destroy="onLogListDlgDestroy()">
+        </loglist_dlg>
     </div>
 
 
@@ -103,7 +131,9 @@
 
 <script>
     import tr_remove_dlg from './tr_remove_dialog';
+    import all_remove_dlg from './translate_remove_dialog';
     import locale_item_cell from './locale_item_cell';
+    import loglist_dlg from './loglist_dialog';
     import gEventBus from './../service/gEventBus';
     import jQuery from 'jquery';
     import config from "../config/config";
@@ -115,17 +145,31 @@
         return str.split(',');
     }
 
+    function getUrlParameter( name, url ) {
+        if (!url) url = location.href;
+        name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+        var regexS = "[\\?&]"+name+"=([^&#]*)";
+        var regex = new RegExp( regexS );
+        var results = regex.exec( url );
+        return results == null ? null : results[1];
+    }
+
     export default {
         data : function() {
             return {
                 showTrRemoveDlg : false,
                 showSelectLang : false,
+                showAllTrRemoveDlg : false,
+                showLogListDlg : false,
+                loglist : [],
                 selectDownloadType : '',
                 renderTranslateList : true,
                 inputLocaleObj: {},
                 action: '',
                 deleteId: '',
-                selectedLang: ''
+                selectedLang: '',
+                selectSortType: '',
+                tagSearch: ''
             }
         },
         computed : {
@@ -153,9 +197,15 @@
             }
         },
         created : function() {
+            const name = getUrlParameter('name', location.href),
+                  uuid = getUrlParameter('uuid', location.href),
+                  languages = getUrlParameter('languages', location.href);
+            this.$store.dispatch('SET_CURRENT_PROJECT', {name, uuid, languages});
             this.selectedLang = this.projectLanguages[0];
+            this.selectSortType = this.$store.state.selectSortType;
             gEventBus.$on('UPDATE_TRANSLATE_LIST', this.onUpdateTranslateList);
             gEventBus.$on('ADD_TRANSLATE', this.onAddTranslate);
+            gEventBus.$on('FETCH_LOG_LIST', this.onFetchLogList);
         },
         mounted : function() {
             this.$store.dispatch('FETCH_TRANSLATE_LIST');
@@ -164,18 +214,32 @@
         beforeDestroy : function() {
             gEventBus.$off('UPDATE_TRANSLATE_LIST');
             gEventBus.$off('ADD_TRANSLATE');
+            gEventBus.$off('FETCH_LOG_LIST');
         },
         methods : {
+            sortTypeChange: function(event) {
+                this.$store.dispatch('SET_LOADING', true);
+                setTimeout(() => {
+                    this.$store.dispatch('SORT_TRANSLATE_LIST', event.target.value);
+                }, 100);
+            },
+            showLogList: function() {
+                this.$store.dispatch('FETCH_LOG_LIST');
+            },
             sampleDownload: function() {
                 window.location.href = config.serverUrl + '/stringXlsx';
             },
             checkForm: function(e) {
                 let val = jQuery('#uploadFile').val();
                 if (val.indexOf('.xlsx') != -1) {
+                    this.$store.dispatch('SET_LOADING');
                     return true;
                 }
                 e.preventDefault();
                 alert('.xlsx 파일을 업로드 해주세요.');
+            },
+            removeAllTranslate: function() {
+                this.$store.dispatch('REMOVE_ALL_TRANSLATE', {name: this.projectName, uuid: this.projectUUID});
             },
             addTranslate: function() {
                 let key, data = {};
@@ -188,10 +252,24 @@
                 this.showSelectLang = true;
                 this.selectDownloadType = type;
             },
+            translateExcelDownload: function() {
+                this.selectDownloadType = 'xlsx';
+                window.location.href = config.serverUrl + "/translateListDownload?projectName=" + this.projectName + '&lang=' + 'ko' + '&type=' + this.selectDownloadType;
+            },
             translateJsonDownload: function() {
                 var selectLang = document.querySelector('input[name="langSelector"]:checked').value;
-                window.location.href = config.serverUrl + "/translateListDownload?projectUUID=" + this.projectUUID + '&lang=' + selectLang + '&type=' + this.selectDownloadType;
+                window.location.href = config.serverUrl + "/translateListDownload?projectName=" + this.projectName + '&lang=' + selectLang + '&type=' + this.selectDownloadType;
                 this.showSelectLang = false;
+            },
+            goTop: function() {
+                window.scrollTo(0, 0);
+            },
+            goBottom: function() {
+                window.scrollTo(0, document.getElementById('project_view').scrollHeight);
+            },
+            onFetchLogList: function(result) {
+                this.loglist = result.reverse();
+                this.showLogListDlg = true;
             },
             onUpdateTranslateList: function() {
                 this.renderTranslateList = false;
@@ -205,6 +283,10 @@
             },
             onAddTranslate: function(result) {
                 if(result) {
+                    let key;
+                    for (key in this.inputLocaleObj) {
+                        this.inputLocaleObj[key] = '';
+                    }
                     //alert("번역어 생성에 성공하였습니다.")
                 } else {
                     alert("번역어 생성에 실패하였습니다.");
@@ -212,10 +294,18 @@
             },
             onTrRemoveDlgDestroy: function() {
                 this.showTrRemoveDlg = false;
+            },
+            onAllTrRemoveDlgDestroy: function() {
+                this.showAllTrRemoveDlg = false;
+            },
+            onLogListDlgDestroy: function() {
+                this.showLogListDlg = false;
             }
         },
         components : {
             tr_remove_dlg,
+            all_remove_dlg,
+            loglist_dlg,
             locale_item_cell
         }
     }
@@ -315,7 +405,35 @@
             border-radius: 22px;
             cursor: pointer;
         }
+        .go_bottom {
+            position:fixed;
+            display:block;
+            width:30px;
+            height:30px;
+            right:30px;
+            top:30px;
+            background-color:red;
+            transform: rotate(90deg);
+            border:1px solid red;
+            border-radius:30px;
+            cursor:pointer;
+            z-index:999999;
+        }
 
+        .go_top {
+            position:fixed;
+            display:block;
+            width:30px;
+            height:30px;
+            right:30px;
+            bottom:30px;
+            background-color:rgba(0.1,0.1,0.1,0.2);
+            transform: rotate(270deg);
+            border:1px solid gray;
+            border-radius:30px;
+            cursor:pointer;
+            z-index:999999;
+        }
 
         .select_title {
             margin-top: 30px;
@@ -324,7 +442,7 @@
         }
 
         .user_input_item {
-            width:1030px;
+            width:1230px;
             margin-left:100px;
             margin-top:14px;
             padding-top:20px;
@@ -403,8 +521,21 @@
                     }
                 }
             }
+            .remove_all_btn {
+                background-color:maroon;
+                color:white;
+                font-size:14px;
+                width:150px;
+                height:26px;
+                border-radius:30px;
+                margin-left:30px;
+            }
             .select_lang_name {
                 color:#4b96e6;
+            }
+            .tag_search {
+                margin-left:20px;
+                font-size:14px;
             }
             select {
                 font-size:14px;

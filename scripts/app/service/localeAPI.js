@@ -3,6 +3,15 @@ import axios from "axios/index";
 import jquery from "jquery";
 
 const localeAPI = {
+    getLogList: (projectUUID, callback) => {
+        axios.get(config.serverUrl + "/logList?projectUUID=" + projectUUID)
+            .then((response) => {
+                callback(response.data);
+            }, (error) => {
+                console.log('get logList Error : ' + error);
+                callback(null);
+            });
+    },
     getProjects: (callback) => {
         axios.get(config.serverUrl + "/projectList")
             .then((response) => {
@@ -34,7 +43,8 @@ const localeAPI = {
         let i, len, dataObj = {
             project: projectJSON.name,
             uuid: projectJSON.uuid,
-            base: strDataJSON[config.baseLanguage] ? strDataJSON[config.baseLanguage] : ''
+            base: strDataJSON[config.baseLanguage] ? strDataJSON[config.baseLanguage] : '',
+            tag: strDataJSON.tag ? strDataJSON.tag : ''
         };
         for (i = 0, len = config.suportLanguages.length; i < len; i+=1) {
             dataObj[config.suportLanguages[i]] = strDataJSON[config.suportLanguages[i]] ? strDataJSON[config.suportLanguages[i]] : '';
@@ -50,7 +60,7 @@ const localeAPI = {
                 callback(res);
             }
         }).fail(function(err) {
-            console.log('addTranslate Error : ' + error);
+            console.log('addTranslate Error : ' + err);
             callback(null);
         });
     },
@@ -59,7 +69,8 @@ const localeAPI = {
             key: strDataJSON.stringId,
             strid: strDataJSON.localeObj.strid,
             tag: strDataJSON.localeObj.tag,
-            base: strDataJSON.localeObj.base ? strDataJSON.localeObj.base : ''
+            base: strDataJSON.localeObj.base ? strDataJSON.localeObj.base : '',
+            project: strDataJSON.project
         };
         for (i = 0, len = config.suportLanguages.length; i < len; i+=1) {
             dataObj[config.suportLanguages[i]] = strDataJSON.localeObj[config.suportLanguages[i]] ? strDataJSON.localeObj[config.suportLanguages[i]] : '';
@@ -75,16 +86,17 @@ const localeAPI = {
                 callback(res);
             }
         }).fail(function(err) {
-            console.log('updateTranslate Error : ' + error);
+            console.log('updateTranslate Error : ' + err);
             callback(null);
         });
     },
-    removeTranslate: (stringId, callback) => {
+    removeTranslate: (stringId, projectName, callback) => {
         jquery.ajax({
             method:'delete',
             url: config.serverUrl + "/translate",
             data: {
-                key: stringId
+                key: stringId,
+                project: projectName
             }
         }).done(function(res) {
             if (typeof res === "string") {
@@ -93,7 +105,45 @@ const localeAPI = {
                 callback(res);
             }
         }).fail(function(err) {
-            console.log('removeTranslate Error : ' + error);
+            console.log('removeTranslate Error : ' + err);
+            callback(null);
+        });
+    },
+    removeAllTranslateInProject: (projectName, uuid, callback) => {
+        jquery.ajax({
+            method:'delete',
+            url: config.serverUrl + "/allTranslateInProject",
+            data: {
+                name: projectName,
+                uuid: uuid
+            }
+        }).done(function(res) {
+            if (typeof res === "string") {
+                callback(JSON.parse(res));
+            } else {
+                callback(res);
+            }
+        }).fail(function(err) {
+            console.log('removeAllTranslateInProject Error : ' + err);
+            callback(null);
+        });
+    },
+    removeProject: (projectName, uuid, callback) => {
+        jquery.ajax({
+            method:'delete',
+            url: config.serverUrl + "/project",
+            data: {
+                name: projectName,
+                uuid: uuid
+            }
+        }).done(function(res) {
+            if (typeof res === "string") {
+                callback(JSON.parse(res));
+            } else {
+                callback(res);
+            }
+        }).fail(function(err) {
+            console.log('removeProject Error : ' + err);
             callback(null);
         });
     },
@@ -113,7 +163,7 @@ const localeAPI = {
                 callback(res);
             }
         }).fail(function(err) {
-            console.log('updateTranslate Error : ' + error);
+            console.log('updateTranslate Error : ' + err);
             callback(null);
         });
     },
@@ -132,7 +182,7 @@ const localeAPI = {
                 callback(res);
             }
         }).fail(function(err) {
-            console.log('createProject Error : ' + error);
+            console.log('createProject Error : ' + err);
             callback(null);
         });
     }
