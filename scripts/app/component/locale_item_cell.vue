@@ -9,12 +9,16 @@
             <span v-show="!isEdit">{{localeObj.tag}}</span>
             <input v-show="isEdit" class="tr_key" v-model="editLocaleObj['tag']">
         </td>
-        <td width="23%" class="tr_key">
-            <span>{{localeObj[defaultLang]}}</span>
+        <td :width="pSelectLang !== 'all' ? '23%' : '10%'" class="tr_key">
+            <span class="translate_txt">{{localeObj[defaultLang]}}</span>
         </td>
-        <td width="28%" class="tr_kr">
-            <span v-show="!isEdit">{{localeObj[pSelectLang]}}</span>
+        <td v-if="pSelectLang !== 'all'" width="28%" class="tr_kr">
+            <span class="translate_txt" v-show="!isEdit">{{localeObj[pSelectLang]}}</span>
             <textarea v-show="isEdit" class="tr_kr" v-model="editLocaleObj[pSelectLang]" @keydown.enter="textEnterKey"></textarea>
+        </td>
+        <td v-if="pSelectLang === 'all'"  width="10%" class="tr_kr" v-for="(item, index) in projectLanguages">
+            <span class="translate_txt" v-show="!isEdit">{{localeObj[item]}}</span>
+            <textarea v-show="isEdit" class="tr_kr" v-model="editLocaleObj[item]" @keydown.enter="textEnterKey"></textarea>
         </td>
         <td width="17%">
             <button v-show="!isEdit" @click.stop="deleteTranslate()">삭제</button>
@@ -27,6 +31,13 @@
 <script>
     import gEventBus from './../service/gEventBus';
     import config from "../config/config";
+
+    function convertLangStrToArr (str) {
+        if (!str) {
+            return [];
+        }
+        return str.split(',');
+    }
 
     export default {
         props : {
@@ -47,6 +58,9 @@
             },
             currentEditTranslateId : function () {
                 return this.$store.state.currentEditTranslateId;
+            },
+            projectLanguages : function () {
+                return convertLangStrToArr(this.$store.state.currentProject.languages);
             },
             isEdit: function () {
                 return this.pId === this.currentEditTranslateId;
@@ -160,6 +174,9 @@
         }
         .tr_eng {
             color:blue;
+        }
+        .translate_txt {
+            white-space: pre-wrap;
         }
         textarea {
             width: 100%;

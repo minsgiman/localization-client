@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import TreeTable from 'tree-table-vue';
 import 'es6-promise/auto';
 import config from './config/config';
 import app from './app';
@@ -28,6 +29,7 @@ const util = {
     }
 };
 
+Vue.use(TreeTable);
 Vue.use(VueRouter);
 const router = new VueRouter({
     routes: config.routes

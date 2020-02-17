@@ -30,6 +30,15 @@ const localeAPI = {
                 callback(null);
             });
     },
+    getSearchList: (search, callback) => {
+        axios.get(config.serverUrl + "/searchTranslate?search=" + search)
+            .then((response) => {
+                callback(response.data);
+            }, (error) => {
+                console.log('searchTranslate Error : ' + error);
+                callback(null);
+            });
+    },
     getTranslate: (strId, callback) => {
         axios.get(config.serverUrl + "/translate?findKey=" + strId)
             .then((response) => {
@@ -90,12 +99,14 @@ const localeAPI = {
             callback(null);
         });
     },
-    removeTranslate: (stringId, projectName, callback) => {
+    removeTranslate: (strDataJSON, projectName, callback) => {
         jquery.ajax({
             method:'delete',
             url: config.serverUrl + "/translate",
             data: {
-                key: stringId,
+                key: strDataJSON.id,
+                strid: strDataJSON.strid,
+                base: strDataJSON.base,
                 project: projectName
             }
         }).done(function(res) {

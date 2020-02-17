@@ -21,6 +21,14 @@
             deleteId: {
                 type: String,
                 dafault: ''
+            },
+            deleteStrId: {
+                type: String,
+                dafault: ''
+            },
+            deleteBase: {
+                type: String,
+                dafault: ''
             }
         },
         data : function() {
@@ -42,7 +50,11 @@
         methods : {
             removeTranslate: function () {
                 if (this.deleteId) {
-                    this.$store.dispatch('REMOVE_TRANSLATE', this.deleteId);
+                    this.$store.dispatch('REMOVE_TRANSLATE', {
+                        id: this.deleteId,
+                        strid: this.deleteStrId,
+                        base: this.deleteBase
+                    });
                 } else {
                     alert("string ID가 잘못되었습니다.");
                 }

@@ -56,9 +56,10 @@
                     <option v-bind:value="lang" v-for="lang in projectLanguages">
                         {{ langTitleMap[lang] }}
                     </option>
+                    <option value="all">모두보기</option>
                 </select>
 
-                <span style="margin-left:30px;">정렬방법 : </span>
+                <span style="margin-left:20px;">정렬방법 : </span>
                 <select v-model="selectSortType" @change="sortTypeChange">
                     <option disabled value="">Please select one</option>
                     <option value="strid">StringID 순</option>
@@ -69,6 +70,7 @@
                     <option value="key-rev">등록역순</option>
                 </select>
                 <input class="tag_search" v-model="tagSearch" placeholder="태그검색" type="text">
+                <button class="empty_tag" @click="setUseEmptyTag(true)">Empty태그보기</button>
                 <button class="remove_all_btn" @click="showAllTrRemoveDlg = true;">전체삭제</button>
                 <button class="remove_all_btn" @click="showLogList()">로그보기</button>
             </div>
@@ -79,15 +81,16 @@
                         <th width="8%">No.</th>
                         <th width="10%">StringID</th>
                         <th width="8%">tag</th>
-                        <th width="23%">Base({{langTitleMap[defaultLang]}})</th>
-                        <th width="28%">번역어</th>
+                        <th :width="selectedLang !== 'all' ? '23%' : '10%'">Base({{langTitleMap[defaultLang]}})</th>
+                        <th v-if="selectedLang !== 'all'" width="28%">번역어</th>
+                        <th v-if="selectedLang === 'all'" width="10%" v-for="lang in projectLanguages">{{langTitleMap[lang]}}</th>
                         <th width="17%">Button</th>
                     </tr>
 
                     <locale_item_cell v-for="(item, index) in translateList"
-                                      v-if="!tagSearch || (tagSearch && tagSearch === item.locale.tag)"
+                                      v-if="(!useEmptyTag && !tagSearch) || (useEmptyTag && !item.locale.tag) || (!useEmptyTag && tagSearch && tagSearch === item.locale.tag)"
                                       :pId="item.id" :pLocaleObj="item.locale" :pSelectLang="selectedLang" :pIdx="index" :key="item.id"
-                                      v-on:deleteTranslate="onDeleteTranslate(item.id)">
+                                      v-on:deleteTranslate="onDeleteTranslate(item.id, item.locale.strid, item.locale.base)">
                     </locale_item_cell>
                 </table>
             </div>
@@ -113,6 +116,8 @@
         <tr_remove_dlg
                 v-if="showTrRemoveDlg"
                 v-bind:deleteId="deleteId"
+                v-bind:deleteStrId="deleteStrId"
+                v-bind:deleteBase="deleteBase"
                 v-on:destroy="onTrRemoveDlgDestroy()">
         </tr_remove_dlg>
         <all_remove_dlg
@@ -167,9 +172,18 @@
                 inputLocaleObj: {},
                 action: '',
                 deleteId: '',
+                deleteStrId: '',
+                deleteBase: '',
                 selectedLang: '',
                 selectSortType: '',
-                tagSearch: ''
+                tagSearch: '',
+                useEmptyTag: false
+            }
+        },
+        watch : {
+            tagSearch : function (val) {
+                console.log('tagSearchChanged');
+                this.setUseEmptyTag(false);
             }
         },
         computed : {
@@ -180,7 +194,6 @@
                 return this.$store.state.currentProject.uuid;
             },
             projectLanguages : function () {
-                console.log(convertLangStrToArr(this.$store.state.currentProject.languages));
                 return convertLangStrToArr(this.$store.state.currentProject.languages);
             },
             translateList : function () {
@@ -228,6 +241,9 @@
             },
             sampleDownload: function() {
                 window.location.href = config.serverUrl + '/stringXlsx';
+            },
+            setUseEmptyTag: function(value) {
+                this.useEmptyTag = value;
             },
             checkForm: function(e) {
                 let val = jQuery('#uploadFile').val();
@@ -277,8 +293,10 @@
                     this.renderTranslateList = true;
                 }, 0);
             },
-            onDeleteTranslate: function(id) {
+            onDeleteTranslate: function(id, strid, base) {
                 this.deleteId = id;
+                this.deleteStrId = strid;
+                this.deleteBase = base;
                 this.showTrRemoveDlg = true;
             },
             onAddTranslate: function(result) {
@@ -442,7 +460,7 @@
         }
 
         .user_input_item {
-            width:1230px;
+            width:1280px;
             margin-left:100px;
             margin-top:14px;
             padding-top:20px;
@@ -528,7 +546,7 @@
                 width:150px;
                 height:26px;
                 border-radius:30px;
-                margin-left:30px;
+                margin-left:20px;
             }
             .select_lang_name {
                 color:#4b96e6;
@@ -536,6 +554,11 @@
             .tag_search {
                 margin-left:20px;
                 font-size:14px;
+            }
+            .empty_tag {
+                font-size: 10px;
+                padding: 2px 4px;
+                margin-left: 2px;
             }
             select {
                 font-size:14px;

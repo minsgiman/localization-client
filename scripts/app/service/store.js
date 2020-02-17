@@ -90,6 +90,17 @@ const store = new Vuex.Store({
                 }, 500);
             });
         },
+        FETCH_SEARCHED_TRANSLATE_LIST : function(context, search) {
+            context.commit('UPDATE_LOADING_STATE', true);
+            localeApi.getSearchList(search, (response) => {
+                let translateList = (response && response.result) ? response.result : [];
+                translateList = sortTranslateList(translateList, store.state.selectSortType);
+                gEventBus.$emit('SEARCH_TRANSLATE_LIST', translateList);
+                setTimeout(function () {
+                    context.commit('UPDATE_LOADING_STATE', false);
+                }, 500);
+            });
+        },
         FETCH_TRANSLATE : function(context, strId) {
             localeApi.getTranslate(strId, (response) => {
                 let translate = (response && response.result) ? response.result : null;
@@ -149,11 +160,11 @@ const store = new Vuex.Store({
                 });
             }
         },
-        REMOVE_TRANSLATE : function(context, stringId) {
+        REMOVE_TRANSLATE : function(context, strDataJSON) {
             context.commit('UPDATE_LOADING_STATE', true);
-            localeApi.removeTranslate(stringId, store.state.currentProject.name, (response) => {
+            localeApi.removeTranslate(strDataJSON, store.state.currentProject.name, (response) => {
                 if (response && response.code === 'ok') {
-                    context.commit('REMOVE_TRANSLATE_TO_CURRENT', stringId);
+                    context.commit('REMOVE_TRANSLATE_TO_CURRENT', strDataJSON.id);
                     setTimeout(function () {
                         context.commit('UPDATE_LOADING_STATE', false);
                         // localeApi.getTranslateList(store.state.currentProject.uuid, (res) => {

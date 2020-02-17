@@ -145,6 +145,7 @@
             border-radius: 100%;
         }
         .loading-container {
+            z-index: 9999;
             position:fixed;
             left:45%;
             top:100px;

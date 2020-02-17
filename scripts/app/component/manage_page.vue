@@ -3,16 +3,32 @@
 
         <h3 class="select_title">Project를 선택하세요</h3>
         <div class="project_wrap">
-            <div v-for="(item, index) in projectList">
-                <button class="project_btn" v-on:click="selectProject(item)">
-                    <span class="project_name">{{item.name}}</span>
-                </button>
-                <button class="lang_set_btn" v-on:click="showLanguageSelectDlg(item)">언어설정</button>
-                <button style="background-color:maroon;" class="lang_set_btn" v-on:click="showProjectDeleteDlg(item)">삭제</button>
-            </div>
+            <tree-table
+                    ref="table"
+                    sum-text="sum"
+                    index-text="#"
+                    :data="projectList"
+                    :columns="tableColumns"
+                    :stripe="tableProps.stripe"
+                    :border="tableProps.border"
+                    :show-header="tableProps.showHeader"
+                    :show-summary="tableProps.showSummary"
+                    :show-row-hover="tableProps.showRowHover"
+                    :show-index="tableProps.showIndex"
+                    :tree-type="tableProps.treeType"
+                    :is-fold="tableProps.isFold"
+                    :expand-type="tableProps.expandType"
+                    expand-key="name"
+                    @cell-click="cellClick"
+                    @cell-dblclick="cellDbclick"
+                    :selectable="tableProps.selectable">
+            </tree-table>
+        </div>
+        <div class="create_project search_wrap">
+            <a class="btn-3d blue" v-on:click="showSearchDlg = true">{{searchTxt}}</a>
         </div>
         <div class="create_project">
-            <a class="btn-3d blue" v-on:click="showInputDlg = true;">{{projectCreateTxt}}</a>
+            <a class="btn-3d blue" v-on:click="showInputDlg = true">{{projectCreateTxt}}</a>
         </div>
         <input_dlg
                 v-if="showInputDlg"
@@ -31,12 +47,18 @@
                 v-bind:project="selectedProject"
                 v-on:destroy="onDeleteDlgDestroy()">
         </remove_dlg>
+        <search_dlg
+                v-if="showSearchDlg"
+                v-bind:title="searchTxt"
+                v-on:destroy="onSearchDlgDestroy()">
+        </search_dlg>
     </div>
 </template>
 
 <script>
     import input_dlg from './input_dialog';
     import check_dlg from './check_dialog';
+    import search_dlg from './search_dialog';
     import remove_dlg from './project_remove_dialog';
     import { router } from '../main';
 
@@ -46,14 +68,74 @@
                 showInputDlg : false,
                 showCheckDlg : false,
                 showDeleteDlg : false,
+                showSearchDlg : false,
                 selectedProject : null,
                 projectCreateTxt : "Project 생성",
+                searchTxt : "번역 전체 검색",
                 projectLangTxt : "언어설정",
-                projectCreateInputType : 'projectname'
+                projectCreateInputType : 'projectname',
+                tableProps: {
+                    stripe: false,
+                    border: true,
+                    showHeader: true,
+                    showSummary: false,
+                    showRowHover: false,
+                    showIndex: false,
+                    treeType: true,
+                    isFold: false,
+                    expandType: false,
+                    selectable: false
+                },
+                tableColumns: [
+                    {
+                        title: '프로젝트명',
+                        key: 'name',
+                        minWidth: '120px',
+                    },
+                    {
+                        title: '언어설정',
+                        key: 'set',
+                        minWidth: '30px'
+                    },
+                    {
+                        title: '삭제',
+                        key: 'remove',
+                        minWidth: '30px'
+                    },
+                ]
             }
         },
         computed : {
             projectList : function () {
+                const tableList = [
+                    {name: 'aos', set: '', remove: '', children: []},
+                    {name: 'ios', set: '', remove: '', children: []},
+                    {name: 'web', set: '', remove: '', children: []},
+                    {name: 'etc', set: '', remove: '', children: []}
+                ],
+                aosList = tableList[0].children,
+                iosList = tableList[1].children,
+                webList = tableList[2].children,
+                etcList = tableList[3].children;
+
+                this.$store.state.projectList.forEach((project) => {
+                    const lowerName = project.name ? project.name.toLowerCase() : '',
+                        pushItem = {name: project.name, set: 'Click', remove: 'Click', uuid: project.uuid};
+
+                    if (lowerName.indexOf('aos') !== -1) {
+                        aosList.push(pushItem);
+                    } else if (lowerName.indexOf('ios') !== -1) {
+                        iosList.push(pushItem);
+                    } else if (lowerName.indexOf('web') !== -1) {
+                        webList.push(pushItem);
+                    } else {
+                        etcList.push(pushItem);
+                    }
+                });
+
+                return tableList;
+            },
+            storeProjectList: function() {
                 return this.$store.state.projectList;
             }
         },
@@ -85,12 +167,36 @@
             },
             onDeleteDlgDestroy: function (param) {
                 this.showDeleteDlg = false;
-            }
+            },
+            onSearchDlgDestroy: function (param) {
+                this.showSearchDlg = false;
+            },
+            cellClick: function(row, rowIndex, column, columnIndex, $event) {
+                if (row.uuid) {
+                    const selectProject = this.storeProjectList.find((item) => item.uuid === row.uuid);
+                    if (selectProject) {
+                        if (columnIndex === 0) { //go translate List
+                            this.selectProject(selectProject);
+                        } else if (columnIndex === 1) { //Language Set
+                            this.showLanguageSelectDlg(selectProject);
+                        } else if (columnIndex === 2) { //remove
+                            this.showProjectDeleteDlg(selectProject);
+                        }
+                    }
+                }
+                $event.preventDefault();
+                $event.stopPropagation();
+            },
+            cellDbclick: function(row, rowIndex, column, columnIndex, $event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+            },
         },
         components : {
             input_dlg,
             check_dlg,
-            remove_dlg
+            remove_dlg,
+            search_dlg
         }
     }
 </script>
@@ -104,7 +210,7 @@
         }
 
         .project_wrap {
-            margin-top:10px;
+            margin-top:20px;
             width:700px;
             button.lang_set_btn {
                 background:#9abf7f;
@@ -166,6 +272,12 @@
             position:fixed;
             right:140px;
             bottom:80px;
+            &.search_wrap {
+                bottom: 196px;
+                .btn-3d {
+                    font-size: 18px;
+                }
+            }
             /* 3D Button */
             .btn-3d {
                 position: relative;
@@ -201,6 +313,17 @@
                 0 0 0 2px rgba(255,255,255,0.15) inset,
                 0 0 0 1px rgba(0,0,0,0.4);
             }
+        }
+
+        .zk-table {
+            font-size:16px;
+            .zk-table__body-cell {
+                cursor:pointer;
+                &:hover {
+                    background-color:#ebf7ff;
+                }
+            }
+
         }
     }
 </style>
