@@ -270,11 +270,11 @@
             },
             translateExcelDownload: function() {
                 this.selectDownloadType = 'xlsx';
-                window.location.href = config.serverUrl + "/translateListDownload?projectName=" + this.projectName + '&lang=' + 'ko' + '&type=' + this.selectDownloadType;
+                window.location.href = config.serverUrl + "/translates/file?projectName=" + this.projectName + '&lang=' + 'ko' + '&type=' + this.selectDownloadType;
             },
             translateJsonDownload: function() {
                 var selectLang = document.querySelector('input[name="langSelector"]:checked').value;
-                window.location.href = config.serverUrl + "/translateListDownload?projectName=" + this.projectName + '&lang=' + selectLang + '&type=' + this.selectDownloadType;
+                window.location.href = config.serverUrl + "/translates/file?projectName=" + this.projectName + '&lang=' + selectLang + '&type=' + this.selectDownloadType;
                 this.showSelectLang = false;
             },
             goTop: function() {
