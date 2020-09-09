@@ -8,10 +8,10 @@ Vue.use(Vuex);
 function checkStrIdExist(list, strId, key) {
     let isExist = false, i, len = list.length;
     for (i = 0; i < len; i+=1) {
-        if (list[i].id === key) {
+        if (list[i].uid === key) {
             continue;
         }
-        if (list[i].locale.strid === strId) {
+        if (list[i].strid === strId) {
             isExist = true;
         }
     }
@@ -23,14 +23,14 @@ function sortTranslateList(list, type) {
         var aLabel, bLabel;
 
         if (type.indexOf('strid') != -1) {
-            aLabel = (a && a.locale && a.locale.strid) ? a.locale.strid.toLowerCase() : '';
-            bLabel = (b && b.locale && b.locale.strid) ? b.locale.strid.toLowerCase() : '';
+            aLabel = (a && a.strid) ? a.strid.toLowerCase() : '';
+            bLabel = (b && b.strid) ? b.strid.toLowerCase() : '';
         } else if (type.indexOf('base') != -1) {
-            aLabel = (a && a.locale && a.locale.base) ? a.locale.base.toLowerCase() : '';
-            bLabel = (b && b.locale && b.locale.base) ? b.locale.base.toLowerCase() : '';
+            aLabel = (a && a.base) ? a.base.toLowerCase() : '';
+            bLabel = (b && b.base) ? b.base.toLowerCase() : '';
         } else {
-            aLabel = (a && a.id) ? a.id.toLowerCase() : '';
-            bLabel = (b && b.id) ? b.id.toLowerCase() : '';
+            aLabel = (a && a.uid) ? a.uid.toLowerCase() : '';
+            bLabel = (b && b.uid) ? b.uid.toLowerCase() : '';
         }
 
         if (type.indexOf('rev') != -1) {
@@ -73,7 +73,7 @@ const store = new Vuex.Store({
             context.commit('UPDATE_EDIT_TRANSLATE_ID', strId);
         },
         FETCH_LOG_LIST : function(context) {
-            localeApi.getLogList(store.state.currentProject.uuid, (response) => {
+            localeApi.getLogList(store.state.currentProject.name, (response) => {
                 let logList = (response && response.result) ? response.result : [];
                 gEventBus.$emit('FETCH_LOG_LIST', logList);
             });
@@ -99,12 +99,6 @@ const store = new Vuex.Store({
                 setTimeout(function () {
                     context.commit('UPDATE_LOADING_STATE', false);
                 }, 500);
-            });
-        },
-        FETCH_TRANSLATE : function(context, strId) {
-            localeApi.getTranslate(strId, (response) => {
-                let translate = (response && response.result) ? response.result : null;
-                gEventBus.$emit('FETCH_TRANSLATE', translate);
             });
         },
         ADD_TRANSLATE : function(context, strDataJSON) {
@@ -281,7 +275,7 @@ const store = new Vuex.Store({
         UPDATE_TRANSLATE_TO_CURRENT : function(state, data) {
             let i, len = state.currentTranslateList.length;
             for (i = 0; i < len; i+=1) {
-                if (state.currentTranslateList[i].id === data.id) {
+                if (state.currentTranslateList[i].uid === data.uid) {
                     state.currentTranslateList[i] = data;
                 }
             }
@@ -289,7 +283,7 @@ const store = new Vuex.Store({
         REMOVE_TRANSLATE_TO_CURRENT : function(state, strid) {
             let i, len = state.currentTranslateList.length;
             for (i = 0; i < len; i+=1) {
-                if (state.currentTranslateList[i] && state.currentTranslateList[i].id === strid) {
+                if (state.currentTranslateList[i] && state.currentTranslateList[i].uid === strid) {
                     state.currentTranslateList.splice(i, 1);
                 }
             }

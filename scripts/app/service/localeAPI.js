@@ -3,8 +3,8 @@ import axios from "axios/index";
 import jquery from "jquery";
 
 const localeAPI = {
-    getLogList: (projectUUID, callback) => {
-        axios.get(config.serverUrl + "/logList?projectUUID=" + projectUUID)
+    getLogList: (projectName, callback) => {
+        axios.get(`${config.serverUrl}/projects/${projectName}/logs`)
             .then((response) => {
                 callback(response.data);
             }, (error) => {
@@ -13,7 +13,7 @@ const localeAPI = {
             });
     },
     getProjects: (callback) => {
-        axios.get(config.serverUrl + "/projectList")
+        axios.get(`${config.serverUrl}/projects`)
             .then((response) => {
                callback(response.data);
             }, (error) => {
@@ -22,7 +22,7 @@ const localeAPI = {
             });
     },
     getTranslateList: (projectUUID, callback) => {
-        axios.get(config.serverUrl + "/translateList?projectUUID=" + projectUUID)
+        axios.get(`${config.serverUrl}/translateList?projectUUID=${projectUUID}`)
             .then((response) => {
                 callback(response.data);
             }, (error) => {
@@ -31,20 +31,11 @@ const localeAPI = {
             });
     },
     getSearchList: (search, callback) => {
-        axios.get(config.serverUrl + "/searchTranslate?search=" + search)
+        axios.get(`${config.serverUrl}/translates/search?search=${search}`)
             .then((response) => {
                 callback(response.data);
             }, (error) => {
                 console.log('searchTranslate Error : ' + error);
-                callback(null);
-            });
-    },
-    getTranslate: (strId, callback) => {
-        axios.get(config.serverUrl + "/translate?findKey=" + strId)
-            .then((response) => {
-                callback(response.data);
-            }, (error) => {
-                console.log('getTranslate Error : ' + error);
                 callback(null);
             });
     },
@@ -60,7 +51,7 @@ const localeAPI = {
         }
         jquery.ajax({
             method:'post',
-            url: config.serverUrl + "/translate",
+            url: `${config.serverUrl}/translates`,
             data: dataObj
         }).done(function(res) {
             if (typeof res === "string") {
@@ -75,7 +66,6 @@ const localeAPI = {
     },
     updateTranslate: (strDataJSON, callback) => {
         let i, len, dataObj = {
-            key: strDataJSON.stringId,
             strid: strDataJSON.localeObj.strid,
             tag: strDataJSON.localeObj.tag,
             base: strDataJSON.localeObj.base ? strDataJSON.localeObj.base : '',
@@ -86,7 +76,7 @@ const localeAPI = {
         }
         jquery.ajax({
             method: 'put',
-            url: config.serverUrl + "/translate",
+            url: `${config.serverUrl}/translates/${strDataJSON.stringId}`,
             data: dataObj
         }).done(function(res) {
             if (typeof res === "string") {
@@ -102,9 +92,8 @@ const localeAPI = {
     removeTranslate: (strDataJSON, projectName, callback) => {
         jquery.ajax({
             method:'delete',
-            url: config.serverUrl + "/translate",
+            url: `${config.serverUrl}/translates/${strDataJSON.id}`,
             data: {
-                key: strDataJSON.id,
                 strid: strDataJSON.strid,
                 base: strDataJSON.base,
                 project: projectName
@@ -123,9 +112,8 @@ const localeAPI = {
     removeAllTranslateInProject: (projectName, uuid, callback) => {
         jquery.ajax({
             method:'delete',
-            url: config.serverUrl + "/allTranslateInProject",
+            url: `${config.serverUrl}/projects/${projectName}/translates`,
             data: {
-                name: projectName,
                 uuid: uuid
             }
         }).done(function(res) {
@@ -142,9 +130,8 @@ const localeAPI = {
     removeProject: (projectName, uuid, callback) => {
         jquery.ajax({
             method:'delete',
-            url: config.serverUrl + "/project",
+            url: `${config.serverUrl}/projects/${projectName}`,
             data: {
-                name: projectName,
                 uuid: uuid
             }
         }).done(function(res) {
@@ -161,11 +148,9 @@ const localeAPI = {
     updateProject: (projectName, languages, uuid, callback) => {
         jquery.ajax({
             method: 'put',
-            url: config.serverUrl + "/project",
+            url: `${config.serverUrl}/projects/${projectName}`,
             data: {
-                name: projectName,
-                languages: languages,
-                uuid: uuid
+                languages: languages
             }
         }).done(function(res) {
             if (typeof res === "string") {
@@ -181,7 +166,7 @@ const localeAPI = {
     createProject: (projectName, languages, callback) => {
         jquery.ajax({
             method:'post',
-            url: config.serverUrl + "/project",
+            url: `${config.serverUrl}/projects`,
             data: {
                 name: projectName,
                 languages: languages

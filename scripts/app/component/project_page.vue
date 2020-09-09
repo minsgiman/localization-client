@@ -88,9 +88,9 @@
                     </tr>
 
                     <locale_item_cell v-for="(item, index) in translateList"
-                                      v-if="(!useEmptyTag && !tagSearch) || (useEmptyTag && !item.locale.tag) || (!useEmptyTag && tagSearch && tagSearch === item.locale.tag)"
-                                      :pId="item.id" :pLocaleObj="item.locale" :pSelectLang="selectedLang" :pIdx="index" :key="item.id"
-                                      v-on:deleteTranslate="onDeleteTranslate(item.id, item.locale.strid, item.locale.base)">
+                                      v-if="(!useEmptyTag && !tagSearch) || (useEmptyTag && !item.tag) || (!useEmptyTag && tagSearch && tagSearch === item.tag)"
+                                      :pId="item.uid" :pLocaleObj="item" :pSelectLang="selectedLang" :pIdx="index" :key="item.uid"
+                                      v-on:deleteTranslate="onDeleteTranslate(item.uid, item.strid, item.base)">
                     </locale_item_cell>
                 </table>
             </div>
