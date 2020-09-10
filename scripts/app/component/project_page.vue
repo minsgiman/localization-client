@@ -222,7 +222,7 @@
         },
         mounted : function() {
             this.$store.dispatch('FETCH_TRANSLATE_LIST');
-            this.action = config.serverUrl + '/upload';
+            this.action = config.serverUrl + '/translates/file';
         },
         beforeDestroy : function() {
             gEventBus.$off('UPDATE_TRANSLATE_LIST');
