@@ -7,7 +7,7 @@ export default {
         {path: '/managePage', component: managePage},
         {path: '/projectPage', component: projectPage}
     ],
-    serverUrl: 'http://10.161.240.93:10000',
+    serverUrl: 'http://10.161.240.93:10001',  //'http://10.161.240.93:10001',
     suportLanguages: ['ko', 'ja', 'en', 'es', 'de', 'zh'],
     langTitleMap: {
         'ko' : '한국어',
