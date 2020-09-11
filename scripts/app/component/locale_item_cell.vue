@@ -41,7 +41,7 @@
 
     export default {
         props : {
-            pId: {type: String, default: ""},
+            uid: {type: String, default: ""},
             pSelectLang: {type: String, default: ""},
             pLocaleObj: {type: Object, default: {}},
             pIdx: {type: Number, default: 0}
@@ -63,17 +63,17 @@
                 return convertLangStrToArr(this.$store.state.currentProject.languages);
             },
             isEdit: function () {
-                return this.pId === this.currentEditTranslateId;
+                return this.uid === this.currentEditTranslateId;
             }
         },
         created : function() {
             this.localeObj = JSON.parse(JSON.stringify(this.pLocaleObj));
-            gEventBus.$on('UPDATE_TRANSLATE_' + this.pId, this.onUpdateTranslate);
+            gEventBus.$on('UPDATE_TRANSLATE_' + this.uid, this.onUpdateTranslate);
         },
         mounted : function() {
         },
         beforeDestroy : function () {
-            gEventBus.$off('UPDATE_TRANSLATE_' + this.pId);
+            gEventBus.$off('UPDATE_TRANSLATE_' + this.uid);
             if (this.isEdit) {
                 this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', '');
             }
@@ -94,7 +94,7 @@
             editModeStart: function() {
                 if (!this.isEdit) {
                     this.editLocaleObj = JSON.parse(JSON.stringify(this.localeObj));
-                    this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', this.pId);
+                    this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', this.uid);
                 }
             },
             editCancel: function() {
@@ -105,7 +105,7 @@
                     this.editLocaleObj.base = this.editLocaleObj[this.pSelectLang];
                 }
                 this.$store.dispatch('UPDATE_TRANSLATE', {
-                    stringId: this.pId,
+                    stringId: this.uid,
                     localeObj: this.editLocaleObj,
                 });
             },

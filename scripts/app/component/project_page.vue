@@ -89,7 +89,7 @@
 
                     <locale_item_cell v-for="(item, index) in translateList"
                                       v-if="(!useEmptyTag && !tagSearch) || (useEmptyTag && !item.tag) || (!useEmptyTag && tagSearch && tagSearch === item.tag)"
-                                      :pId="item.uid" :pLocaleObj="item" :pSelectLang="selectedLang" :pIdx="index" :key="item.uid"
+                                      :uid="item.uid" :pLocaleObj="item" :pSelectLang="selectedLang" :pIdx="index" :key="item.uid"
                                       v-on:deleteTranslate="onDeleteTranslate(item.uid, item.strid, item.base)">
                     </locale_item_cell>
                 </table>
@@ -214,7 +214,7 @@
                   uuid = getUrlParameter('uuid', location.href),
                   languages = getUrlParameter('languages', location.href);
             this.$store.dispatch('SET_CURRENT_PROJECT', {name, uuid, languages});
-            this.selectedLang = this.projectLanguages[0];
+            this.selectedLang = 'all';
             this.selectSortType = this.$store.state.selectSortType;
             gEventBus.$on('UPDATE_TRANSLATE_LIST', this.onUpdateTranslateList);
             gEventBus.$on('ADD_TRANSLATE', this.onAddTranslate);
@@ -240,7 +240,7 @@
                 this.$store.dispatch('FETCH_LOG_LIST');
             },
             sampleDownload: function() {
-                window.location.href = config.serverUrl + '/stringXlsx';
+                window.location.href = config.serverUrl + '/translates/sampleFile';
             },
             setUseEmptyTag: function(value) {
                 this.useEmptyTag = value;
