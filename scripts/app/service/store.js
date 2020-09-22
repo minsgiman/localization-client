@@ -42,6 +42,13 @@ function sortTranslateList(list, type) {
     return list;
 }
 
+async function requestMiddleware(apiMethod, param) {
+    const apiRes = await apiMethod(param).catch((err) => {
+        console.log(err);
+    });
+    return apiRes.data;
+}
+
 const store = new Vuex.Store({
     state: {
         projectList: [],
@@ -49,6 +56,7 @@ const store = new Vuex.Store({
         currentProject: {},
         currentEditTranslateId: '',
         isLoading: false,
+        user: null,
         selectSortType: 'strid' // strid, strid-rev, base, base-rev, key, key-rev
     },
     getters: {
@@ -57,6 +65,16 @@ const store = new Vuex.Store({
         // }
     },
     actions: {
+        REQUEST_LOGIN: function(context, param) {
+            localeApi.login(param.id, param.password, (response) => {
+                gEventBus.$emit('LOGIN_RESULT', response);
+            });
+        },
+        async FETCH_USER(context) {
+            const response = await requestMiddleware(localeApi.getUser, null);
+            context.commit('UPDATE_USER', response.user ? response.user : null);
+            return response.user;
+        },
         SORT_TRANSLATE_LIST : function(context, sortType) {
             let translateList = sortTranslateList(store.state.currentTranslateList, sortType);
             context.commit('UPDATE_TRANSLATE_LIST', translateList);
@@ -296,6 +314,9 @@ const store = new Vuex.Store({
         },
         UPDATE_SELECT_SORT_TYPE : function(state, type) {
             state.selectSortType = type;
+        },
+        UPDATE_USER : function(state, user) {
+            state.user = user;
         }
     }
 });

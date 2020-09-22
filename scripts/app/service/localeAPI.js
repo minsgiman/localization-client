@@ -1,42 +1,55 @@
 import config from "../config/config";
 import axios from "axios/index";
 import jquery from "jquery";
+import { router } from "../main";
+
+function axiosNoAuthCheck(error) {
+    return (error.response && (error.response.status === 401 || error.response.status === 403));
+}
+
+function ajaxNoAuthCheck(error) {
+    return (error.status === 401 || error.status === 403);
+}
 
 const localeAPI = {
     getLogList: (projectName, callback) => {
-        axios.get(`${config.serverUrl}/projects/${projectName}/logs`)
+        axios.get(`${config.serverUrl}/projects/${projectName}/logs`,
+            {headers: {Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`}})
             .then((response) => {
                 callback(response.data);
             }, (error) => {
                 console.log('get logList Error : ' + error);
-                callback(null);
+                axiosNoAuthCheck(error) ? router.push({path: 'loginPage'}) : callback(null);
             });
     },
     getProjects: (callback) => {
-        axios.get(`${config.serverUrl}/projects`)
+        axios.get(`${config.serverUrl}/projects`,
+            {headers: {Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`}})
             .then((response) => {
                callback(response.data);
             }, (error) => {
                 console.log('getProjects Error : ' + error);
-                callback(null);
+                axiosNoAuthCheck(error) ? router.push({path: 'loginPage'}) : callback(null);
             });
     },
     getTranslateList: (projectUUID, callback) => {
-        axios.get(`${config.serverUrl}/translateList?projectUUID=${projectUUID}`)
+        axios.get(`${config.serverUrl}/translateList?projectUUID=${projectUUID}`,
+            {headers: {Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`}})
             .then((response) => {
                 callback(response.data);
             }, (error) => {
                 console.log('getTranslateList Error : ' + error);
-                callback(null);
+                axiosNoAuthCheck(error) ? router.push({path: 'loginPage'}) : callback(null);
             });
     },
     getSearchList: (search, callback) => {
-        axios.get(`${config.serverUrl}/translates/search?search=${search}`)
+        axios.get(`${config.serverUrl}/translates/search?search=${search}`,
+            {headers: {Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`}})
             .then((response) => {
                 callback(response.data);
             }, (error) => {
                 console.log('searchTranslate Error : ' + error);
-                callback(null);
+                axiosNoAuthCheck(error) ? router.push({path: 'loginPage'}) : callback(null);
             });
     },
     addTranslate: (strDataJSON, projectJSON, callback) => {
@@ -52,7 +65,10 @@ const localeAPI = {
         jquery.ajax({
             method:'post',
             url: `${config.serverUrl}/translates`,
-            data: dataObj
+            data: dataObj,
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`
+            }
         }).done(function(res) {
             if (typeof res === "string") {
                 callback(JSON.parse(res));
@@ -61,7 +77,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('addTranslate Error : ' + err);
-            callback(null);
+            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
         });
     },
     updateTranslate: (strDataJSON, callback) => {
@@ -77,7 +93,10 @@ const localeAPI = {
         jquery.ajax({
             method: 'put',
             url: `${config.serverUrl}/translates/${strDataJSON.stringId}`,
-            data: dataObj
+            data: dataObj,
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`
+            }
         }).done(function(res) {
             if (typeof res === "string") {
                 callback(JSON.parse(res));
@@ -86,7 +105,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('updateTranslate Error : ' + err);
-            callback(null);
+            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
         });
     },
     removeTranslate: (strDataJSON, projectName, callback) => {
@@ -97,6 +116,9 @@ const localeAPI = {
                 strid: strDataJSON.strid,
                 base: strDataJSON.base,
                 project: projectName
+            },
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`
             }
         }).done(function(res) {
             if (typeof res === "string") {
@@ -106,7 +128,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('removeTranslate Error : ' + err);
-            callback(null);
+            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
         });
     },
     removeAllTranslateInProject: (projectName, uuid, callback) => {
@@ -115,6 +137,9 @@ const localeAPI = {
             url: `${config.serverUrl}/projects/${projectName}/translates`,
             data: {
                 uuid: uuid
+            },
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`
             }
         }).done(function(res) {
             if (typeof res === "string") {
@@ -124,7 +149,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('removeAllTranslateInProject Error : ' + err);
-            callback(null);
+            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
         });
     },
     removeProject: (projectName, uuid, callback) => {
@@ -133,6 +158,9 @@ const localeAPI = {
             url: `${config.serverUrl}/projects/${projectName}`,
             data: {
                 uuid: uuid
+            },
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`
             }
         }).done(function(res) {
             if (typeof res === "string") {
@@ -142,7 +170,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('removeProject Error : ' + err);
-            callback(null);
+            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
         });
     },
     updateProject: (projectName, languages, uuid, callback) => {
@@ -151,6 +179,9 @@ const localeAPI = {
             url: `${config.serverUrl}/projects/${projectName}`,
             data: {
                 languages: languages
+            },
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`
             }
         }).done(function(res) {
             if (typeof res === "string") {
@@ -160,7 +191,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('updateTranslate Error : ' + err);
-            callback(null);
+            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
         });
     },
     createProject: (projectName, languages, callback) => {
@@ -170,6 +201,9 @@ const localeAPI = {
             data: {
                 name: projectName,
                 languages: languages
+            },
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`
             }
         }).done(function(res) {
             if (typeof res === "string") {
@@ -179,6 +213,28 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('createProject Error : ' + err);
+            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
+        });
+    },
+    getUser: () => {
+        return axios.get(`${config.serverUrl}/users/me`,
+            {headers: {Authorization: `Bearer ${localStorage.getItem(config.tokenKey)}`}});
+    },
+    login: (id, password, callback) => {
+        jquery.ajax({
+            method: 'post',
+            url: `${config.serverUrl}/users/login`,
+            data: {
+                id, password
+            }
+        }).done(function(res) {
+            if (typeof res === "string") {
+                callback(JSON.parse(res));
+            } else {
+                callback(res);
+            }
+        }).fail(function(err) {
+            console.log('login Error : ' + err);
             callback(null);
         });
     }

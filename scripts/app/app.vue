@@ -27,6 +27,15 @@
                 return this.$store.state.isLoading;
             }
         },
+        mounted: function() {
+            this.$store.dispatch('FETCH_USER').then((user) => {
+                if (user) {
+                    router.push({path: 'managePage'});
+                } else {
+                    router.push({path: 'loginPage'});
+                }
+            });
+        },
         methods: {
             moveToMain: function () {
                 router.push({path: 'managePage'});
