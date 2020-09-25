@@ -239,7 +239,7 @@
                 this.$store.dispatch('FETCH_LOG_LIST');
             },
             sampleDownload: function() {
-                window.location.href = process.env.baseUrl + '/translates/sampleFile';
+                this.$store.dispatch('FETCH_SAMPLE_FILE');
             },
             setUseEmptyTag: function(value) {
                 this.useEmptyTag = value;
@@ -269,11 +269,19 @@
             },
             translateExcelDownload: function() {
                 this.selectDownloadType = 'xlsx';
-                window.location.href = process.env.baseUrl + "/translates/file?projectName=" + this.projectName + '&lang=' + 'ko' + '&type=' + this.selectDownloadType;
+                this.$store.dispatch('FETCH_TRANSLATE_FILE', {
+                    projectName: this.projectName,
+                    lang: 'ko',
+                    type: this.selectDownloadType
+                });
             },
             translateJsonDownload: function() {
                 var selectLang = document.querySelector('input[name="langSelector"]:checked').value;
-                window.location.href = process.env.baseUrl + "/translates/file?projectName=" + this.projectName + '&lang=' + selectLang + '&type=' + this.selectDownloadType;
+                this.$store.dispatch('FETCH_TRANSLATE_FILE', {
+                    projectName: this.projectName,
+                    lang: selectLang,
+                    type: this.selectDownloadType
+                });
                 this.showSelectLang = false;
             },
             goTop: function() {

@@ -1,7 +1,5 @@
 import axios from "axios/index";
 import jquery from "jquery";
-//import { router } from "../main";
-const router = {}; //TODO:
 
 const api = process.env.baseUrl;
 const supportLangs = process.env.suportLanguages;
@@ -16,6 +14,19 @@ function ajaxNoAuthCheck(error) {
     return (error.status === 401 || error.status === 403);
 }
 
+function getFileName(lang, type) {
+  if (type === 'json' || type === 'xml') {
+    return `locale-${lang}.${type}`;
+  }
+  if (type === 'xlsx') {
+    return 'locale.xlsx';
+  }
+  if (type === 'ascii') {
+    return `Messages_${lang}.properties`;
+  }
+  return 'noname';
+}
+
 const localeAPI = {
     getLogList: (projectName, callback) => {
         axios.get(`${api}/projects/${projectName}/logs`,
@@ -24,8 +35,56 @@ const localeAPI = {
                 callback(response.data);
             }, (error) => {
                 console.log('get logList Error : ' + error);
-                axiosNoAuthCheck(error) ? router.push({path: 'loginPage'}) : callback(null);
+                axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
             });
+    },
+    getSampleFile: () => {
+        jquery.ajax({
+          type: 'GET',
+          url: `${api}/translates/sampleFile`,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+          },
+          xhrFields: {
+            responseType: 'blob'
+          },
+          success: function (blob) {
+            const windowUrl = window.URL || window.webkitURL;
+            const url = windowUrl.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = 'sample.xlsx';
+            anchor.click();
+            windowUrl.revokeObjectURL(url);
+          },
+          error: function (error) {
+            ajaxNoAuthCheck(error) ? location.href = '/login' : null;
+          }
+        });
+    },
+    getTranslateFile: ({projectName, lang, type}) => {
+        jquery.ajax({
+          type: 'GET',
+          url: `${api}/translates/file?projectName=${projectName}&lang=${lang}&type=${type}`,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+          },
+          xhrFields: {
+            responseType: 'blob'
+          },
+          success: function (blob) {
+            const windowUrl = window.URL || window.webkitURL;
+            const url = windowUrl.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = getFileName(lang, type);
+            anchor.click();
+            windowUrl.revokeObjectURL(url);
+          },
+          error: function (error) {
+            ajaxNoAuthCheck(error) ? location.href = '/login' : null;
+          }
+        });
     },
     getProjects: (callback) => {
         axios.get(`${api}/projects`,
@@ -34,7 +93,7 @@ const localeAPI = {
                callback(response.data);
             }, (error) => {
                 console.log('getProjects Error : ' + error);
-                axiosNoAuthCheck(error) ? router.push({path: 'loginPage'}) : callback(null);
+                axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
             });
     },
     getTranslateList: (projectUUID, callback) => {
@@ -44,7 +103,7 @@ const localeAPI = {
                 callback(response.data);
             }, (error) => {
                 console.log('getTranslateList Error : ' + error);
-                axiosNoAuthCheck(error) ? router.push({path: 'loginPage'}) : callback(null);
+                axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
             });
     },
     getSearchList: (search, callback) => {
@@ -54,7 +113,7 @@ const localeAPI = {
                 callback(response.data);
             }, (error) => {
                 console.log('searchTranslate Error : ' + error);
-                axiosNoAuthCheck(error) ? router.push({path: 'loginPage'}) : callback(null);
+                axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
             });
     },
     addTranslate: (strDataJSON, projectJSON, callback) => {
@@ -82,7 +141,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('addTranslate Error : ' + err);
-            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
+            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
         });
     },
     updateTranslate: (strDataJSON, callback) => {
@@ -110,7 +169,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('updateTranslate Error : ' + err);
-            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
+            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
         });
     },
     removeTranslate: (strDataJSON, projectName, callback) => {
@@ -133,7 +192,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('removeTranslate Error : ' + err);
-            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
+            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
         });
     },
     removeAllTranslateInProject: (projectName, uuid, callback) => {
@@ -154,7 +213,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('removeAllTranslateInProject Error : ' + err);
-            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
+            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
         });
     },
     removeProject: (projectName, uuid, callback) => {
@@ -175,7 +234,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('removeProject Error : ' + err);
-            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
+            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
         });
     },
     updateProject: (projectName, languages, uuid, callback) => {
@@ -196,7 +255,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('updateTranslate Error : ' + err);
-            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
+            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
         });
     },
     createProject: (projectName, languages, callback) => {
@@ -218,7 +277,7 @@ const localeAPI = {
             }
         }).fail(function(err) {
             console.log('createProject Error : ' + err);
-            ajaxNoAuthCheck(err) ? router.push({path: 'loginPage'}) : callback(null);
+            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
         });
     },
     getUser: () => {

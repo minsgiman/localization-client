@@ -88,6 +88,12 @@ const createStore = () => {
         UPDATE_EDIT_TRANSLATE_ID : function({ commit }, strId) {
           commit('UPDATE_EDIT_TRANSLATE_ID', strId);
         },
+        FETCH_SAMPLE_FILE : function() {
+          localeApi.getSampleFile();
+        },
+        FETCH_TRANSLATE_FILE : function({}, {projectName, lang, type}) {
+          localeApi.getTranslateFile({projectName, lang, type});
+        },
         FETCH_LOG_LIST : function({ state }) {
           localeApi.getLogList(state.currentProject.name, (response) => {
             let logList = (response && response.result) ? response.result : [];
