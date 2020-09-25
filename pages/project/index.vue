@@ -221,7 +221,7 @@
         },
         mounted : function() {
             this.$store.dispatch('FETCH_TRANSLATE_LIST');
-            this.action = process.env.baseUrl + '/translates/file';
+            this.action = process.env.baseUrl + '/translateList/file';
         },
         beforeDestroy : function() {
             gEventBus.$off('UPDATE_TRANSLATE_LIST');
