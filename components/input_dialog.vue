@@ -1,44 +1,48 @@
 <template>
     <div id="input_dlg" class="dialog">
-        <div class="dimmed"></div>
-        <div v-show="dlgStatus === 'name'" class="ly_pop ly_medium" style="z-index:1500;">
+      <modal_dialog @close="closeDlg" :dlg-style="{width:'480px', padding:'30px'}">
+        <template slot="content">
+          <div v-if="dlgStatus === 'name'" class="p-dlg-cont">
             <div class="ly_tit">
-                <h2>{{title}}</h2>
+              <h2>{{title}}</h2>
             </div>
             <div class="content_wrap">
-                <span>Project 이름을 입력하세요 : </span>
-                <input v-model="projectName">
+              <span>Project 이름을 입력하세요 : </span>
+              <input v-model="projectName">
             </div>
 
             <div class="btn-box">
-                <button type="button" class="btn-confirm btn-b" v-on:click="setDlgStatus('country')">다음</button>
-                <button type="button" class="btn-cancel btn-b" v-on:click="closeDlg()">취소</button>
+              <button type="button" class="btn-confirm btn-b" v-on:click="setDlgStatus('country')">다음</button>
+              <button type="button" class="btn-cancel btn-b" v-on:click="closeDlg()">취소</button>
             </div>
-        </div>
-        <div v-show="dlgStatus === 'country'" class="ly_pop ly_medium" style="z-index:1500;">
+          </div>
+          <div v-if="dlgStatus === 'country'" class="p-dlg-cont">
             <div class="ly_tit">
-                <h2>{{title}}</h2>
+              <h2>{{title}}</h2>
             </div>
             <div class="content_wrap">
-                <span>Project의 언어를 선택하세요 : </span>
-                <div id='check_country'>
+              <span>Project의 언어를 선택하세요 : </span>
+              <div id='check_country'>
                     <span class="check_wrap" v-for="lang in supportLanguages">
                         <input type="checkbox" :id="lang" :value="lang" v-model="selectLanguages">
                         <label :for="lang">{{langTitleMap[lang]}}</label>
                     </span>
-                </div>
+              </div>
             </div>
 
             <div class="btn-box">
-                <button type="button" class="btn-confirm btn-b" v-on:click="createProject()">확인</button>
-                <button type="button" class="btn-cancel btn-b" v-on:click="closeDlg()">취소</button>
+              <button type="button" class="btn-confirm btn-b" v-on:click="createProject()">확인</button>
+              <button type="button" class="btn-cancel btn-b" v-on:click="closeDlg()">취소</button>
             </div>
-        </div>
+          </div>
+        </template>
+      </modal_dialog>
     </div>
 </template>
 
 <script>
     import gEventBus from '@/store/gEventBus';
+    import modal_dialog from './modal_dialog';
 
     function convertLangArrToStr (arr) {
         if (!arr) {
@@ -123,6 +127,9 @@
                     alert("프로젝트 생성에 실패하였습니다.");
                 }
             },
+        },
+        components: {
+            modal_dialog
         }
     }
 </script>

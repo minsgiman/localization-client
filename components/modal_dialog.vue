@@ -1,6 +1,6 @@
 <template>
     <div class="modal_dialog">
-        <div class="dlg_wrap">
+        <div class="mod_dlg_wrap" @click="dimClickHandler($event)">
             <div class="content" :style="dlgStyle">
                 <slot name="content"></slot>
                 <a class="btn_close" @click="closeDialog"></a>
@@ -21,6 +21,11 @@
         methods: {
             closeDialog: function() {
                 this.$emit('close');
+            },
+            dimClickHandler: function(event) {
+                if (event.target.className === 'mod_dlg_wrap') {
+                    this.closeDialog();
+                }
             }
         },
         components : {
@@ -38,17 +43,19 @@
         height: 100%;
         background-color: rgba(0,0,0,0.2);
         z-index: 999;
-        .dlg_wrap {
+        .mod_dlg_wrap {
             display:table-cell;
-            text-align:center;
+            text-align:left;
             vertical-align:middle;
             width:100%;
             height:100%;
+            cursor: pointer;
             .content {
                 position:relative;
                 background-color:#fff;
                 padding:0px;
                 margin: 0 auto;
+                cursor: auto;
             }
             .btn_close {
                 position:absolute;
