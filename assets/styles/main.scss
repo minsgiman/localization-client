@@ -1,23 +1,14 @@
-body,div,input,textarea,select,button,table{font-family: 'Nanum Barun Gothic', sans-serif; margin:0; padding:0}
+@import 'settings/_colors.scss';
+@import 'settings/_typography.scss';
 
-*{
-  margin:0;
-  padding:0;
-}
+@import 'tools/_list.scss';
 
-*:focus {
-  outline: none;
-}
+@import 'generic/_normalize.scss';
 
-body{
-  font:15px/1.3 'Open Sans', sans-serif;
-  color: #5e5b64;
-}
+@import 'elements/_documents.scss';
+@import 'elements/_links.scss';
 
-section, footer, header, aside, nav{
-  display: block;
-}
-
-input:-ms-input-placeholder { color: lightgray; }
-input::-webkit-input-placeholder { color: lightgray; }
-input::-moz-placeholder { color: lightgray; }
+@import 'components/_buttons.scss';
+@import 'components/_tables.scss';
+@import 'components/_lang_select.scss';
+@import 'components/_dialog.scss';

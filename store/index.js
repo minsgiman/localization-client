@@ -64,7 +64,9 @@ const createStore = () => {
       },
       actions: {
         REQUEST_LOGIN: function({ commit }, param) {
+          commit('UPDATE_LOADING_STATE', true);
           localeApi.login(param.id, param.password, (response) => {
+            commit('UPDATE_LOADING_STATE', false);
             gEventBus.$emit('LOGIN_RESULT', response);
           });
         },

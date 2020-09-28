@@ -1,13 +1,13 @@
 <template>
-    <div id="project_view">
+    <div id="project_view" class="project-cont">
         <div>
             <h3 class="select_title">{{projectName}} 프로젝트</h3>
 
             <div class="btn_wrap">
-                <button class="btn_json_down btn green rounded" v-on:click="showLangSelectDlg('json')">JSON 다운로드</button>
-                <button class="btn_json_down btn purple rounded" v-on:click="showLangSelectDlg('xml')">xml 다운로드</button>
-                <button class="btn_json_down btn cyan rounded" v-on:click="translateExcelDownload()">excel 다운로드</button>
-                <button class="btn_json_down btn red rounded" v-on:click="showLangSelectDlg('ascii')">ASCII 다운로드</button>
+                <button class="btn-download green rounded" v-on:click="showLangSelectDlg('json')">JSON 다운로드</button>
+                <button class="btn-download purple rounded" v-on:click="showLangSelectDlg('xml')">xml 다운로드</button>
+                <button class="btn-download cyan rounded" v-on:click="translateExcelDownload()">excel 다운로드</button>
+                <button class="btn-download red rounded" v-on:click="showLangSelectDlg('ascii')">ASCII 다운로드</button>
             </div>
 
             <div class="user_input_item">
@@ -18,8 +18,8 @@
                         <span class="ip_info">{{langTitleMap[lang]}}</span>
                         <input class="ip_txt" type="text" v-model="inputLocaleObj[lang]">
                     </span>
-                    <span class="add_btn">
-                        <button class="gateway_regist" v-on:click="addTranslate()">추가</button>
+                    <span class="simple-btn-wrap">
+                        <button class="btn-simple" v-on:click="addTranslate()">추가</button>
                     </span>
                 </div>
             </div>
@@ -40,8 +40,8 @@
                                     <input type="submit" id="submit_file" name="Upload"/>
                                 </span>
                             </form>
-                            <span class="add_btn">
-                                <button class="gateway_regist" v-on:click="sampleDownload()">샘플 다운로드</button>
+                            <span class="simple-btn-wrap">
+                                <button class="btn-simple" v-on:click="sampleDownload()">샘플 다운로드</button>
                             </span>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
             </div>
 
             <div v-if="renderTranslateList" class="locale_item_wrap">
-                <table cellpadding="30">
+                <table class="table-locale" cellpadding="30">
                     <tr>
                         <th width="8%">No.</th>
                         <th width="10%">StringID</th>
@@ -108,9 +108,9 @@
                     <div class="check"></div>
                 </li>
             </ul>
-            <div class="btn_box">
-                <button class="btn_confirm btn_b" v-on:click="translateJsonDownload()">다운로드</button>
-                <button class="btn_cancel btn_b" v-on:click="showSelectLang = false;">취소</button>
+            <div class="btn-box">
+                <button class="btn-confirm btn-b" v-on:click="translateJsonDownload()">다운로드</button>
+                <button class="btn-cancel btn-b" v-on:click="showSelectLang = false;">취소</button>
             </div>
         </div>
         <tr_remove_dlg
@@ -337,37 +337,9 @@
 </script>
 
 <style lang="scss">
-    #project_view {
+    .project-cont {
         width: 100%;
         position: absolute;
-
-        table {
-            border-top: solid 2px #4a4a4a;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th, td {
-            padding: 18px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-            word-break: break-word;
-            input {
-                height:32px;
-                font-size:13px;
-            }
-            input.checkbox {
-                width:32px;
-                transform:scale(1.5);
-                margin-left:10px;
-            }
-        }
-        th:nth-child(1) {
-            padding-left:40px;
-        }
-        td:nth-child(1) {
-            padding-left:40px;
-        }
 
         .locale_item_wrap {
             position:relative;
@@ -507,7 +479,7 @@
             }
 
             .ip_info {
-                font-size:14px; color:#333333; font-weight:bold;
+                font-size:14px; color:#333333; font-weight:bold; line-height: 44px;
                 input {
                     position: relative;
                     font-weight: 400;
@@ -525,26 +497,12 @@
                 margin-right:24px;
                 margin-bottom:15px;
             }
-            .add_btn {
+            .simple-btn-wrap {
                 position:absolute;
                 right:110px;
                 top:33px;
                 width: 110px;
                 display:inline-block;
-                .gateway_regist {
-                    width:110px;
-                    height:32px;
-                    margin-left:74px;
-                    background: #ffffff;
-                    border: solid 1px #777777;
-                    font-size:14px;
-                    cursor:pointer;
-                    &:hover{
-                        background: #444444;
-                        color: #ffffff;
-                        border:none;
-                    }
-                }
             }
             .remove_all_btn {
                 background-color:maroon;
@@ -572,171 +530,9 @@
             }
         }
 
-
         .btn_wrap {
             margin: 20px 150px 30px 95px;
             display:inline-block;
-            button {
-                width: 120px;
-                height: 50px;
-                margin-right:20px;
-                font-size:14px;
-
-                /* Colors for .btn and .btn-two */
-                &.btn.blue, &.btn-two.blue     {background-color: #7fb1bf;}
-                &.btn.green, &.btn-two.green   {background-color: #9abf7f;}
-                &.btn.red, &.btn-two.red       {background-color: #fa5a5a;}
-                &.btn.purple, &.btn-two.purple {background-color: #cb99c5;}
-                &.btn.cyan, &.btn-two.cyan     {background-color: #7fccde;}
-                &.btn.yellow, &.btn-two.yellow {background-color: #f0d264;}
-
-                &.rounded {
-                    border-radius: 10px;
-                }
-
-                /* default button style */
-                &.btn {
-                    position: relative;
-                    border: 0;
-                    padding: 15px 25px;
-                    display: inline-block;
-                    text-align: center;
-                    color: white;
-                }
-                &.btn:active {
-                    top: 4px;
-                }
-
-                /* color classes for .btn */
-                &.btn.blue {box-shadow: 0px 4px #74a3b0;}
-                &.btn.blue:active {box-shadow: 0 0 #74a3b0; background-color: #709CA8;}
-
-                &.btn.green {box-shadow: 0px 4px 0px #87a86f;}
-                &.btn.green:active {box-shadow: 0 0 #87a86f; background-color: #87a86f;}
-
-                &.btn.red {box-shadow:0px 4px 0px #E04342;}
-                &.btn.red:active {box-shadow: 0 0 #ff4c4b; background-color: #ff4c4b;}
-
-                &.btn.purple {box-shadow:0px 4px 0px #AD83A8;}
-                &.btn.purple:active {box-shadow: 0 0 #BA8CB5; background-color: #BA8CB5;}
-
-                &.btn.cyan {box-shadow:0px 4px 0px #73B9C9;}
-                &.btn.cyan:active {box-shadow: 0 0 #73B9C9; background-color: #70B4C4;}
-
-                &.btn.yellow {box-shadow:0px 4px 0px #D1B757;}
-                &.btn.yellow:active {box-shadow: 0 0 #ff4c4b; background-color: #D6BB59;}
-
-                &.btn_json_down {
-                    width:180px;
-                }
-                &.btn_add_tr {
-
-                }
-
-            }
-        }
-
-        .lang-select-container {
-            display: block;
-            position: fixed;
-            top: 100px;
-            left: 30%;
-            margin: 40px auto;
-            max-height: 500px;
-            width: 500px;
-            padding: 20px;
-            background: #222222;
-            overflow-y: auto;
-            h2 {
-                color: #AAAAAA;
-            }
-            ul {
-                list-style: none;
-                margin: 0;
-                padding: 0;
-                overflow: auto;
-                li {
-                    color: #AAAAAA;
-                    display: block;
-                    position: relative;
-                    float: left;
-                    width: 100%;
-                    height: 100px;
-                    border-bottom: 1px solid #333;
-                    input[type=radio]{
-                        position: absolute;
-                        visibility: hidden;
-                    }
-                    label{
-                        display: block;
-                        position: relative;
-                        font-weight: 300;
-                        font-size: 1.35em;
-                        padding: 25px 25px 25px 80px;
-                        margin: 10px auto;
-                        height: 30px;
-                        z-index: 9;
-                        cursor: pointer;
-                        -webkit-transition: all 0.25s linear;
-                    }
-                    &:hover label {
-                        color: #FFFFFF;
-                    }
-                    .check{
-                        display: block;
-                        position: absolute;
-                        border: 5px solid #AAAAAA;
-                        border-radius: 100%;
-                        height: 25px;
-                        width: 25px;
-                        top: 30px;
-                        left: 20px;
-                        z-index: 5;
-                        transition: border .25s linear;
-                        -webkit-transition: border .25s linear;
-                        &::before {
-                            display: block;
-                            position: absolute;
-                            content: '';
-                            border-radius: 100%;
-                            height: 15px;
-                            width: 15px;
-                            top: 5px;
-                            left: 5px;
-                            margin: auto;
-                            transition: background 0.25s linear;
-                            -webkit-transition: background 0.25s linear;
-                        }
-                    }
-                    &:hover .check{
-                        border: 5px solid #FFFFFF;
-                    }
-                }
-            }
-            input[type=radio]:checked ~ .check {
-                border: 5px solid #0DFF92;
-            }
-
-            input[type=radio]:checked ~ .check::before{
-                background: #0DFF92;
-            }
-
-            input[type=radio]:checked ~ label{
-                color: #0DFF92;
-            }
-
-            .btn_box{
-                margin-top:20px;text-align:center; clear: both;
-                .btn_b{
-                    height:50px;width: 150px; font-size:16px;color:#fff;border-radius: 25px; padding: 0; margin: 0 5px;cursor:pointer;
-                }
-                .btn_confirm {
-                    background: #4b96e6; border-color: #4b96e6;
-                }
-                .btn_cancel {
-                    background: #777; border-color: #777;
-                }
-            }
         }
     }
 </style>

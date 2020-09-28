@@ -1,0 +1,157 @@
+$btn-3d-color-bg: #6DA2D9 !default;
+$btn-3d-color-hover: #699DD1 !default;
+
+$colors-btn-green: (
+  "bg": #9abf7f,
+  "active-bg": #87a86f,
+  "shadow": #87a86f
+) !default;
+
+$colors-btn-purple: (
+  "bg": #cb99c5,
+  "active-bg": #BA8CB5,
+  "shadow": #AD83A8
+) !default;
+
+$colors-btn-cyan: (
+  "bg": #7fccde,
+  "active-bg": #70B4C4,
+  "shadow": #73B9C9
+) !default;
+
+$colors-btn-red: (
+  "bg": #fa5a5a,
+  "active-bg": #ff4c4b,
+  "shadow": #E04342
+) !default;
+
+.btn-3d {
+  position: relative;
+  display: inline-block;
+  width:232px;
+  height:50px;
+  font-size: 21px;
+  padding: 13px 60px;
+  color: white;
+  margin: 65px 0px 10px;
+  border-radius: 6px;
+  text-align: center;
+  transition: top .01s linear;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.15);
+  background-color: white;
+  box-sizing: border-box;
+  &:active {
+    top: 9px;
+  }
+  &.blue {
+    background-color: $btn-3d-color-bg;
+    box-shadow: 0 0 0 1px #6698cb inset,
+    0 0 0 2px rgba(255,255,255,0.15) inset,
+    0 8px 0 0 rgba(110, 164, 219, .7),
+    0 8px 0 1px rgba(0,0,0,.4),
+    0 8px 8px 1px rgba(0,0,0,0.5);
+    &:hover {
+      background-color: $btn-3d-color-hover;
+    }
+    &:active {
+      box-shadow: 0 0 0 1px #6191C2 inset,
+      0 0 0 2px rgba(255,255,255,0.15) inset,
+      0 0 0 1px rgba(0,0,0,0.4);
+    }
+  }
+}
+
+.btn-download {
+  display: inline-block;
+  position: relative;
+  width: 180px;
+  height: 50px;
+  margin-right:20px;
+  font-size:14px;
+  padding: 15px 25px;
+  text-align: center;
+  color: white;
+
+  &.rounded {
+    border-radius: 10px;
+  }
+
+  &:active {
+    top: 4px;
+  }
+
+  &.green {
+    box-shadow: 0px 4px 0px map_get($colors-btn-green, "shadow");
+    background-color: map_get($colors-btn-green, "bg");
+    &:active {
+      box-shadow: 0 0 map_get($colors-btn-green, "shadow");
+      background-color: map_get($colors-btn-green, "active-bg");
+    }
+  }
+
+  &.red {
+    box-shadow:0px 4px 0px map_get($colors-btn-red, "shadow");
+    background-color: map_get($colors-btn-red, "bg");
+    &:active {
+      box-shadow: 0 0 map_get($colors-btn-red, "shadow");
+      background-color: map_get($colors-btn-red, "active-bg");
+    }
+  }
+
+  &.purple {
+    box-shadow:0px 4px 0px map_get($colors-btn-purple, "shadow");
+    background-color: map_get($colors-btn-purple, "bg");
+    &:active {
+      box-shadow: 0 0 map_get($colors-btn-purple, "shadow");
+      background-color: map_get($colors-btn-purple, "active-bg");
+    }
+  }
+
+  &.cyan {
+    box-shadow:0px 4px 0px map_get($colors-btn-cyan, "shadow");
+    background-color: map_get($colors-btn-cyan, "bg");
+    &:active {
+      box-shadow: 0 0 map_get($colors-btn-cyan, "shadow");
+      background-color: map_get($colors-btn-cyan, "active-bg");
+    }
+  }
+}
+
+.btn-simple {
+    width:110px;
+    height:32px;
+    margin-left:74px;
+    background: $color-white;
+    border: solid 1px $color-gray;
+    font-size:14px;
+    cursor:pointer;
+    &:hover{
+      background: $color-text;
+      color: $color-white;
+      border:none;
+    }
+}
+
+.btn-box{
+  margin-top:20px;
+  text-align:center;
+  clear: both;
+  .btn-b{
+    height:50px;
+    width: 150px;
+    font-size:16px;
+    color:$color-white;
+    border-radius: 25px;
+    padding: 0;
+    margin: 0 5px;
+    cursor:pointer;
+  }
+  .btn-confirm {
+    background: $color-toast-blue;
+    border-color: $color-toast-blue;
+  }
+  .btn-cancel {
+    background: $color-gray;
+    border-color: $color-gray;
+  }
+}

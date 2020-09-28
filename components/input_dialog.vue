@@ -1,5 +1,5 @@
 <template>
-    <div id="input_dlg">
+    <div id="input_dlg" class="dialog">
         <div class="dimmed"></div>
         <div v-show="dlgStatus === 'name'" class="ly_pop ly_medium" style="z-index:1500;">
             <div class="ly_tit">
@@ -10,9 +10,9 @@
                 <input v-model="projectName">
             </div>
 
-            <div class="btn_box">
-                <button type="button" class="btn_confirm btn_b" v-on:click="setDlgStatus('country')">다음</button>
-                <button type="button" class="btn_cancel btn_b" v-on:click="closeDlg()">취소</button>
+            <div class="btn-box">
+                <button type="button" class="btn-confirm btn-b" v-on:click="setDlgStatus('country')">다음</button>
+                <button type="button" class="btn-cancel btn-b" v-on:click="closeDlg()">취소</button>
             </div>
         </div>
         <div v-show="dlgStatus === 'country'" class="ly_pop ly_medium" style="z-index:1500;">
@@ -29,9 +29,9 @@
                 </div>
             </div>
 
-            <div class="btn_box">
-                <button type="button" class="btn_confirm btn_b" v-on:click="createProject()">확인</button>
-                <button type="button" class="btn_cancel btn_b" v-on:click="closeDlg()">취소</button>
+            <div class="btn-box">
+                <button type="button" class="btn-confirm btn-b" v-on:click="createProject()">확인</button>
+                <button type="button" class="btn-cancel btn-b" v-on:click="closeDlg()">취소</button>
             </div>
         </div>
     </div>
@@ -126,53 +126,3 @@
         }
     }
 </script>
-
-<style lang="scss">
-    #input_dlg {
-        position:fixed; top:100px;
-        .dimmed{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:130;display: block;}
-        @media only screen and (max-width:1600px) {
-            .dimmed_content{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:80; display: none;}
-        }
-        .ly_pop{
-            position:fixed;top:30%;left:35%;width:34%;padding: 10px 30px 30px 30px; z-index:200;background:#fff;box-sizing:border-box;
-            .ly_tit{
-                margin-top:20px;
-            }
-            .content_wrap{
-                margin-top:40px;font-size:19px;
-                input{
-                    font-size:19px;
-                    height:30px;
-                }
-                .check_wrap {
-                    position:relative;
-                    display:inline-block;
-                    width:110px;
-                    margin-right:20px;
-                    input {
-                        position:absolute;
-                        left:5px;
-                    }
-                    label {
-                        position:absolute;
-                        left:27px;
-                        top:5px;
-                    }
-                }
-            }
-            .btn_box{
-                margin-top:50px;text-align:center; clear: both;
-                .btn_b{
-                    height:50px;width: 150px; font-size:16px;color:#fff;border-radius: 25px; padding: 0; margin: 0 5px;cursor:pointer;
-                }
-                .btn_confirm {
-                    background: #4b96e6;
-                }
-                .btn_cancel {
-                    background: #777;
-                }
-            }
-        }
-    }
-</style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="search_dialog">
+    <div id="search_dialog" class="dialog">
         <modal_dlg @close="closeDialog" :dlgStyle="dlgStyle">
             <template slot="content">
                 <div class="content_wrap">
@@ -86,7 +86,7 @@
     }
 </script>
 <style lang="scss">
-    .search_dialog {
+    #search_dialog {
         .content_wrap {
             text-align:left;
             .search_wrap {

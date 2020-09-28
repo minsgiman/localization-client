@@ -1,6 +1,5 @@
 <template>
-    <div id="cam_manage">
-
+    <div class="cam-manage-cont">
         <h3 class="select_title">Project를 선택하세요</h3>
         <div class="project_wrap">
             <tree-table
@@ -207,8 +206,11 @@
 </script>
 
 <style lang="scss">
-    #cam_manage {
-        width:56%;left:21%;position:absolute;
+    .cam-manage-cont {
+        width:56%;
+        left:21%;
+        position:absolute;
+
         .select_title {
             margin-top:60px;
             font-size:1.3em;
@@ -217,60 +219,6 @@
         .project_wrap {
             margin-top:20px;
             width:700px;
-            button.lang_set_btn {
-                background:#9abf7f;
-                border-radius:30px;
-                color:#fff;
-                border:none;
-                height:35px;
-                width:120px;
-                font-size:1.0em;
-                padding:0 2em;
-                cursor:pointer;
-                transition:800ms ease all;
-                outline:none;
-                margin-right:20px;
-                margin-top:40px;
-            }
-            button.project_btn {
-                background:#1AAB8A;
-                color:#fff;
-                border:none;
-                position:relative;
-                height:75px;
-                width:300px;
-                font-size:1.6em;
-                padding:0 2em;
-                cursor:pointer;
-                transition:800ms ease all;
-                outline:none;
-                margin-right:20px;
-                margin-top:40px;
-            }
-            button.project_btn:hover{
-                background:#fff;
-                color:#1AAB8A;
-            }
-            button.project_btn:before,button.project_btn:after{
-                content:'';
-                position:absolute;
-                top:0;
-                right:0;
-                height:2px;
-                width:0;
-                background: #1AAB8A;
-                transition:400ms ease all;
-            }
-            button.project_btn:after{
-                right:inherit;
-                top:inherit;
-                left:0;
-                bottom:0;
-            }
-            button.project_btn:hover:before,button.project_btn:hover:after{
-                width:100%;
-                transition:800ms ease all;
-            }
         }
 
         .create_project {
@@ -283,52 +231,6 @@
                     font-size: 18px;
                 }
             }
-            /* 3D Button */
-            .btn-3d {
-                position: relative;
-                display: inline-block;
-                width:232px;
-                height:50px;
-                font-size: 21px;
-                padding: 13px 60px;
-                color: white;
-                margin: 65px 0px 10px;
-                border-radius: 6px;
-                text-align: center;
-                transition: top .01s linear;
-                text-shadow: 0 1px 0 rgba(0,0,0,0.15);
-                background-color: white;
-                box-sizing: border-box;
-            }
-            .btn-3d.blue:hover   {background-color: #699DD1;}
-            .btn-3d:active {
-                top: 9px;
-            }
-            /* 3D button color */
-            .btn-3d.blue {
-                background-color: #6DA2D9;
-                box-shadow: 0 0 0 1px #6698cb inset,
-                0 0 0 2px rgba(255,255,255,0.15) inset,
-                0 8px 0 0 rgba(110, 164, 219, .7),
-                0 8px 0 1px rgba(0,0,0,.4),
-                0 8px 8px 1px rgba(0,0,0,0.5);
-            }
-            .btn-3d.blue:active {
-                box-shadow: 0 0 0 1px #6191C2 inset,
-                0 0 0 2px rgba(255,255,255,0.15) inset,
-                0 0 0 1px rgba(0,0,0,0.4);
-            }
-        }
-
-        .zk-table {
-            font-size:16px;
-            .zk-table__body-cell {
-                cursor:pointer;
-                &:hover {
-                    background-color:#ebf7ff;
-                }
-            }
-
         }
     }
 </style>

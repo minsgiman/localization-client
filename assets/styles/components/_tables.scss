@@ -1,0 +1,35 @@
+$table-zk-color-hover: #ebf7ff !default;
+
+div.zk-table {
+  font-size:16px;
+  .zk-table__body-cell {
+    cursor:pointer;
+    &:hover {
+      background-color: $table-zk-color-hover;
+    }
+  }
+}
+
+.table-locale {
+  border-top: solid 2px #4a4a4a;
+  border-collapse: collapse;
+  width: 100%;
+  th, td {
+    padding: 18px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    word-break: break-word;
+    input {
+      height:32px;
+      font-size:13px;
+    }
+    input.checkbox {
+      width:32px;
+      transform:scale(1.5);
+      margin-left:10px;
+    }
+    &:nth-child(1) {
+      padding-left:40px;
+    }
+  }
+}

@@ -1,0 +1,52 @@
+* {
+  margin:0;
+  padding:0;
+}
+
+*:focus {
+  outline: none;
+}
+
+section, footer, header, aside, nav {
+  display: block;
+}
+
+ul,ol {
+  list-style:none
+}
+
+button{
+  overflow:visible;
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  line-height:0;
+  vertical-align: inherit;
+  outline:none;
+  &::-moz-focus-inner {
+    padding:0;border:0
+  }
+  span {
+    position:relative
+  }
+}
+
+input[type='text'],
+input[type='password'] {
+  border:0;
+  background:transparent;
+  vertical-align:top;
+  outline:none;
+  -webkit-appearance:none;
+  appearance:none;
+}
+input[type=text]::-ms-clear {
+  display:none;
+}
+
+input::placeholder,
+input:-ms-input-placeholder,
+input::-webkit-input-placeholder,
+input::-moz-placeholder {
+  color: $color-placeholder;
+}
