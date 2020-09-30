@@ -70,6 +70,11 @@ const createStore = () => {
             gEventBus.$emit('LOGIN_RESULT', response);
           });
         },
+        REQUEST_LOGOUT: function({ commit }) {
+          localStorage.removeItem(process.env.tokenKey);
+          commit('UPDATE_USER', null);
+          location.href = '/login';
+        },
         async FETCH_USER({ commit }) {
           const response = await requestMiddleware(localeApi.getUser, null);
           commit('UPDATE_USER', response.user ? response.user : null);

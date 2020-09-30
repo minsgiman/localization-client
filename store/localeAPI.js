@@ -1,5 +1,6 @@
 import axios from "axios/index";
 import jquery from "jquery";
+import qs from "qs";
 
 const api = process.env.baseUrl;
 const supportLangs = process.env.suportLanguages;
@@ -25,6 +26,17 @@ function getFileName(lang, type) {
     return `Messages_${lang}.properties`;
   }
   return 'noname';
+}
+
+function getFormData(dataObj) {
+  const bodyFormData = new FormData();
+  let key;
+  if (dataObj) {
+    for (key in dataObj) {
+      bodyFormData.append(key, dataObj[key]);
+    }
+  }
+  return bodyFormData;
 }
 
 const localeAPI = {
@@ -126,22 +138,17 @@ const localeAPI = {
         for (i = 0, len = supportLangs.length; i < len; i+=1) {
             dataObj[supportLangs[i]] = strDataJSON[supportLangs[i]] ? strDataJSON[supportLangs[i]] : '';
         }
-        jquery.ajax({
-            method:'post',
-            url: `${api}/translates`,
-            data: dataObj,
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem(tokenKey)}`
-            }
-        }).done(function(res) {
-            if (typeof res === "string") {
-                callback(JSON.parse(res));
-            } else {
-                callback(res);
-            }
-        }).fail(function(err) {
-            console.log('addTranslate Error : ' + err);
-            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
+
+        return axios.post(
+      `${api}/translates`, qs.stringify(dataObj),
+      {headers: {
+           'Content-Type': 'application/x-www-form-urlencoded',
+           'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+         }})
+        .then((response) => {
+          callback(response.data);
+        }, (error) => {
+          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
         });
     },
     updateTranslate: (strDataJSON, callback) => {
@@ -154,130 +161,84 @@ const localeAPI = {
         for (i = 0, len = supportLangs.length; i < len; i+=1) {
             dataObj[supportLangs[i]] = strDataJSON.localeObj[supportLangs[i]] ? strDataJSON.localeObj[supportLangs[i]] : '';
         }
-        jquery.ajax({
-            method: 'put',
-            url: `${api}/translates/${strDataJSON.stringId}`,
-            data: dataObj,
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem(tokenKey)}`
-            }
-        }).done(function(res) {
-            if (typeof res === "string") {
-                callback(JSON.parse(res));
-            } else {
-                callback(res);
-            }
-        }).fail(function(err) {
-            console.log('updateTranslate Error : ' + err);
-            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
+
+        return axios.put(
+        `${api}/translates/${strDataJSON.stringId}`, qs.stringify(dataObj),
+        {headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+          }})
+        .then((response) => {
+          callback(response.data);
+        }, (error) => {
+          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
         });
     },
     removeTranslate: (strDataJSON, projectName, callback) => {
-        jquery.ajax({
-            method:'delete',
-            url: `${api}/translates/${strDataJSON.id}`,
-            data: {
-                strid: strDataJSON.strid,
-                base: strDataJSON.base,
-                project: projectName
-            },
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem(tokenKey)}`
-            }
-        }).done(function(res) {
-            if (typeof res === "string") {
-                callback(JSON.parse(res));
-            } else {
-                callback(res);
-            }
-        }).fail(function(err) {
-            console.log('removeTranslate Error : ' + err);
-            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
+        return axios.delete(
+          `${api}/translates/${strDataJSON.id}`,
+        {headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+          }, params: {
+            project: projectName
+          }})
+        .then((response) => {
+          callback(response.data);
+        }, (error) => {
+          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
         });
     },
     removeAllTranslateInProject: (projectName, uuid, callback) => {
-        jquery.ajax({
-            method:'delete',
-            url: `${api}/projects/${projectName}/translates`,
-            data: {
-                uuid: uuid
-            },
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem(tokenKey)}`
-            }
-        }).done(function(res) {
-            if (typeof res === "string") {
-                callback(JSON.parse(res));
-            } else {
-                callback(res);
-            }
-        }).fail(function(err) {
-            console.log('removeAllTranslateInProject Error : ' + err);
-            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
+      return axios.delete(
+        `${api}/projects/${projectName}/translates`,
+        {headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+          }, params: { uuid }})
+        .then((response) => {
+          callback(response.data);
+        }, (error) => {
+          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
         });
     },
     removeProject: (projectName, uuid, callback) => {
-        jquery.ajax({
-            method:'delete',
-            url: `${api}/projects/${projectName}`,
-            data: {
-                uuid: uuid
-            },
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem(tokenKey)}`
-            }
-        }).done(function(res) {
-            if (typeof res === "string") {
-                callback(JSON.parse(res));
-            } else {
-                callback(res);
-            }
-        }).fail(function(err) {
-            console.log('removeProject Error : ' + err);
-            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
+      return axios.delete(
+        `${api}/projects/${projectName}`,
+        {headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+          }, params: { uuid }})
+        .then((response) => {
+          callback(response.data);
+        }, (error) => {
+          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
         });
     },
     updateProject: (projectName, languages, uuid, callback) => {
-        jquery.ajax({
-            method: 'put',
-            url: `${api}/projects/${projectName}`,
-            data: {
-                languages: languages
-            },
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem(tokenKey)}`
-            }
-        }).done(function(res) {
-            if (typeof res === "string") {
-                callback(JSON.parse(res));
-            } else {
-                callback(res);
-            }
-        }).fail(function(err) {
-            console.log('updateTranslate Error : ' + err);
-            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
+      return axios.put(
+        `${api}/projects/${projectName}`, qs.stringify({languages}),
+        {headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+          }})
+        .then((response) => {
+          callback(response.data);
+        }, (error) => {
+          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
         });
     },
-    createProject: (projectName, languages, callback) => {
-        jquery.ajax({
-            method:'post',
-            url: `${api}/projects`,
-            data: {
-                name: projectName,
-                languages: languages
-            },
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem(tokenKey)}`
-            }
-        }).done(function(res) {
-            if (typeof res === "string") {
-                callback(JSON.parse(res));
-            } else {
-                callback(res);
-            }
-        }).fail(function(err) {
-            console.log('createProject Error : ' + err);
-            ajaxNoAuthCheck(err) ? location.href = '/login' : callback(null);
+    createProject: (name, languages, callback) => {
+      return axios.post(
+        `${api}/projects`, qs.stringify({name, languages}),
+        {headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+          }})
+        .then((response) => {
+          callback(response.data);
+        }, (error) => {
+          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
         });
     },
     getUser: () => {
@@ -285,21 +246,16 @@ const localeAPI = {
             {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}});
     },
     login: (id, password, callback) => {
-        jquery.ajax({
-            method: 'post',
-            url: `${api}/users/login`,
-            data: {
-                id, password
-            }
-        }).done(function(res) {
-            if (typeof res === "string") {
-                callback(JSON.parse(res));
-            } else {
-                callback(res);
-            }
-        }).fail(function(err) {
-            console.log('login Error : ' + err);
-            callback(null);
+        return axios.post(
+        `${api}/users/login`, qs.stringify({id, password}),
+        {headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+          }})
+        .then((response) => {
+          callback(response.data);
+        }, (error) => {
+          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
         });
     }
 };
