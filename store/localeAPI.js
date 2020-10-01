@@ -98,15 +98,9 @@ const localeAPI = {
           }
         });
     },
-    getProjects: (callback) => {
-        axios.get(`${api}/projects`,
-            {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})
-            .then((response) => {
-               callback(response.data);
-            }, (error) => {
-                console.log('getProjects Error : ' + error);
-                axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-            });
+    getProjects: () => {
+        return axios.get(`${api}/projects`,
+      {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})
     },
     getTranslateList: (projectUUID, callback) => {
         axios.get(`${api}/translateList?projectUUID=${projectUUID}`,
@@ -202,61 +196,41 @@ const localeAPI = {
           axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
         });
     },
-    removeProject: (projectName, uuid, callback) => {
+    removeProject: ({name, uuid}) => {
       return axios.delete(
-        `${api}/projects/${projectName}`,
-        {headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-          }, params: { uuid }})
-        .then((response) => {
-          callback(response.data);
-        }, (error) => {
-          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-        });
+    `${api}/projects/${name}`,
+    {headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+      }, params: { uuid }})
     },
-    updateProject: (projectName, languages, uuid, callback) => {
+    updateProject: ({name, languages}) => {
       return axios.put(
-        `${api}/projects/${projectName}`, qs.stringify({languages}),
-        {headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-          }})
-        .then((response) => {
-          callback(response.data);
-        }, (error) => {
-          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-        });
+    `${api}/projects/${name}`, qs.stringify({languages}),
+    {headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+      }})
     },
-    createProject: (name, languages, callback) => {
+    createProject: ({name, languages}) => {
       return axios.post(
-        `${api}/projects`, qs.stringify({name, languages}),
-        {headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-          }})
-        .then((response) => {
-          callback(response.data);
-        }, (error) => {
-          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-        });
+    `${api}/projects`, qs.stringify({name, languages}),
+    {headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+      }})
     },
     getUser: () => {
         return axios.get(`${api}/users/me`,
             {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}});
     },
-    login: (id, password, callback) => {
+    login: ({id, password}) => {
         return axios.post(
-        `${api}/users/login`, qs.stringify({id, password}),
-        {headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-          }})
-        .then((response) => {
-          callback(response.data);
-        }, (error) => {
-          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-        });
+      `${api}/users/login`, qs.stringify({id, password}),
+      {headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+        }})
     }
 };
 

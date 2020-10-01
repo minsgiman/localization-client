@@ -15,7 +15,6 @@
 </template>
 
 <script>
-    import gEventBus from '@/store/gEventBus';
     import modal_dialog from './modal_dialog';
 
     export default {
@@ -29,29 +28,28 @@
             return {
             }
         },
-        created : function () {
-            gEventBus.$on('REMOVE_PROJECT', this.onRemoveProject);
-        },
-        beforeDestroy : function () {
-            gEventBus.$off('REMOVE_PROJECT');
-        },
-        mounted : function () {
-        },
         methods : {
             closeDlg: function () {
                 this.$emit('destroy');
                 this.$destroy();
             },
-            removeProject: function () {
-                if (this.project) {
-                    this.$store.dispatch('REMOVE_PROJECT', {name: this.project.name, uuid: this.project.uuid});
+            async removeProject() {
+                if (!this.project) {
+                    return;
                 }
-            },
-            onRemoveProject: function(result) {
-                if(result) {
-                    this.closeDlg();
-                } else {
-                    alert("프로젝트 삭제에 실패하였습니다.");
+
+                try {
+                    this.$store.dispatch('SET_LOADING', true);
+                    const rResponse = await this.$store.dispatch('REMOVE_PROJECT', {name: this.project.name, uuid: this.project.uuid});
+                    if (rResponse && rResponse.code === 'ok') {
+                        await this.$store.dispatch('FETCH_PROJECT_LIST');
+                        this.closeDlg();
+                    } else {
+                        alert("프로젝트 삭제에 실패하였습니다.");
+                    }
+                    this.$store.dispatch('SET_LOADING', false);
+                } catch(err) {
+                    this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
                 }
             }
         },

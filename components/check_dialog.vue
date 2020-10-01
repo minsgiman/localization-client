@@ -24,7 +24,6 @@
 </template>
 
 <script>
-    import gEventBus from '@/store/gEventBus';
     import modal_dialog from './modal_dialog';
 
     function convertLangArrToStr (arr) {
@@ -68,37 +67,33 @@
         },
         created : function () {
             this.selectLanguages = this.project.languages.split(',');
-            gEventBus.$on('UPDATE_PROJECT', this.onUpdateProject);
-        },
-        beforeDestroy : function () {
-            gEventBus.$off('UPDATE_PROJECT');
-        },
-        mounted : function () {
         },
         methods : {
-            updateProject: function () {
+            async updateProject() {
                 if (!this.selectLanguages.length) {
                     alert("언어를 선택해주세요.");
                     return;
                 }
                 const languages = convertLangArrToStr(this.selectLanguages);
-                this.$store.dispatch('UPDATE_PROJECT', {
-                    name: this.project.name,
-                    uuid: this.project.uuid,
-                    languages: languages
-                });
+
+                try {
+                    this.$store.dispatch('SET_LOADING', true);
+                    const uResponse = await this.$store.dispatch('UPDATE_PROJECT', {name: this.project.name, languages});
+                    if (uResponse && uResponse.code === 'ok') {
+                        await this.$store.dispatch('FETCH_PROJECT_LIST');
+                        this.closeDlg();
+                    } else {
+                        alert("프로젝트 언어변경에 실패하였습니다.");
+                    }
+                    this.$store.dispatch('SET_LOADING', false);
+                } catch(err) {
+                    this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+                }
             },
             closeDlg: function () {
                 this.$emit('destroy');
                 this.$destroy();
-            },
-            onUpdateProject: function(result) {
-                if(result) {
-                    this.closeDlg();
-                } else {
-                    alert("프로젝트 언어변경에 실패하였습니다.");
-                }
-            },
+            }
         },
         components: {
             modal_dialog

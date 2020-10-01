@@ -40,10 +40,8 @@ function sortTranslateList(list, type) {
 }
 
 async function requestMiddleware(apiMethod, param) {
-  const apiRes = await apiMethod(param).catch((err) => {
-    console.log(err);
-  });
-  return apiRes.data;
+  const apiRes = await apiMethod(param);
+  return apiRes ? apiRes.data : null;
 }
 
 const createStore = () => {
@@ -63,17 +61,16 @@ const createStore = () => {
         // }
       },
       actions: {
-        REQUEST_LOGIN: function({ commit }, param) {
+        async REQUEST_LOGIN({ commit }, {id, password}) {
           commit('UPDATE_LOADING_STATE', true);
-          localeApi.login(param.id, param.password, (response) => {
-            commit('UPDATE_LOADING_STATE', false);
-            gEventBus.$emit('LOGIN_RESULT', response);
-          });
+          const response = await requestMiddleware(localeApi.login, {id, password});
+          commit('UPDATE_LOADING_STATE', false);
+          return response;
         },
         REQUEST_LOGOUT: function({ commit }) {
           localStorage.removeItem(process.env.tokenKey);
           commit('UPDATE_USER', null);
-          location.href = '/login';
+          commit('UPDATE_LOADING_STATE', false);
         },
         async FETCH_USER({ commit }) {
           const response = await requestMiddleware(localeApi.getUser, null);
@@ -89,8 +86,8 @@ const createStore = () => {
             commit('UPDATE_LOADING_STATE', false);
           }, 100);
         },
-        SET_LOADING : function({ commit }) {
-          commit('UPDATE_LOADING_STATE', true);
+        SET_LOADING : function({ commit }, param) {
+          commit('UPDATE_LOADING_STATE', param);
         },
         UPDATE_EDIT_TRANSLATE_ID : function({ commit }, strId) {
           commit('UPDATE_EDIT_TRANSLATE_ID', strId);
@@ -201,65 +198,23 @@ const createStore = () => {
             }
           });
         },
-        REMOVE_PROJECT : function({ commit }, data) {
-          commit('UPDATE_LOADING_STATE', true);
-          localeApi.removeProject(data.name, data.uuid, (response) => {
-            if (response && response.code === 'ok') {
-              setTimeout(function () {
-                localeApi.getProjects((response) => {
-                  let projectList = (response && response.list) ? response.list : [];
-                  commit('UPDATE_PROJECT_LIST', projectList);
-                  commit('UPDATE_LOADING_STATE', false);
-                  gEventBus.$emit('REMOVE_PROJECT', true);
-                });
-              }, 500);
-            } else {
-              commit('UPDATE_LOADING_STATE', false);
-              gEventBus.$emit('REMOVE_PROJECT', false);
-            }
-          });
+        async REMOVE_PROJECT({ commit }, {name, uuid}) {
+          const response = await requestMiddleware(localeApi.removeProject, {name, uuid});
+          return response;
         },
-        FETCH_PROJECT_LIST : function({ commit }) {
-          localeApi.getProjects((response) => {
-            let projectList = (response && response.list) ? response.list : [];
-            commit('UPDATE_PROJECT_LIST', projectList);
-          });
+        async FETCH_PROJECT_LIST({ commit }) {
+          const response = await requestMiddleware(localeApi.getProjects);
+          const projectList = (response && response.list) ? response.list : [];
+          commit('UPDATE_PROJECT_LIST', projectList);
+          return projectList;
         },
-        UPDATE_PROJECT : function({ commit }, data) {
-          commit('UPDATE_LOADING_STATE', true);
-          localeApi.updateProject(data.name, data.languages, data.uuid, (response) => {
-            if (response && response.code === 'ok') {
-              setTimeout(function () {
-                localeApi.getProjects((res) => {
-                  let projectList = (res && res.list) ? res.list : [];
-                  commit('UPDATE_PROJECT_LIST', projectList);
-                  gEventBus.$emit('UPDATE_PROJECT', true);
-                  commit('UPDATE_LOADING_STATE', false);
-                });
-              }, 500);
-            } else {
-              gEventBus.$emit('UPDATE_PROJECT', false);
-              commit('UPDATE_LOADING_STATE', false);
-            }
-          });
+        async UPDATE_PROJECT({ commit }, {name, languages}) {
+          const response = await requestMiddleware(localeApi.updateProject, {name, languages});
+          return response;
         },
-        CREATE_PROJECT : function({ commit }, data) {
-          commit('UPDATE_LOADING_STATE', true);
-          localeApi.createProject(data.name, data.languages, (response) => {
-            if (response && response.code === 'ok') {
-              setTimeout(function () {
-                localeApi.getProjects((res) => {
-                  let projectList = (res && res.list) ? res.list : [];
-                  commit('UPDATE_PROJECT_LIST', projectList);
-                  gEventBus.$emit('CREATE_PROJECT', true);
-                  commit('UPDATE_LOADING_STATE', false);
-                });
-              }, 500);
-            } else {
-              gEventBus.$emit('CREATE_PROJECT', false);
-              commit('UPDATE_LOADING_STATE', false);
-            }
-          });
+        async CREATE_PROJECT({ commit }, {name, languages}) {
+          const response = await requestMiddleware(localeApi.createProject, {name, languages});
+          return response;
         },
         SET_CURRENT_PROJECT: function({ commit }, projectJSON) {
           commit('UPDATE_CURRENT_PROJECT', projectJSON);

@@ -42,8 +42,6 @@
 </template>
 
 <script>
-    import gEventBus from '@/store/gEventBus';
-
     export default {
         data : function() {
             return {
@@ -53,35 +51,35 @@
                 showError: false
             }
         },
-        created : function() {
-            gEventBus.$on('LOGIN_RESULT', this.onLoginRes);
-        },
-        beforeDestroy : function() {
-            gEventBus.$off('LOGIN_RESULT', this.onLoginRes);
+        mounted() {
+            this.$store.dispatch('REQUEST_LOGOUT');
         },
         methods : {
-            login: function() {
+            async login() {
                 if (!this.valId || !this.valPw){
                     this.showTitle = false;
                     this.showError = true;
                     return;
                 }
-                this.$store.dispatch('REQUEST_LOGIN', {id: this.valId, password: this.valPw});
-            },
-            onLoginRes: function(res) {
-                if (res && res.token && res.code === 'ok') {
-                    localStorage.setItem(process.env.tokenKey, res.token);
-                    this.$store.dispatch('FETCH_USER').then((user) => {
-                        if (user) {
-                            this.$router.push('/');
-                        } else {
-                            this.showTitle = false;
-                            this.showError = true;
-                        }
-                    });
-                } else {
-                    this.showTitle = false;
-                    this.showError = true;
+
+                try {
+                    const loginRes = await this.$store.dispatch('REQUEST_LOGIN', {id: this.valId, password: this.valPw});
+                    if (!loginRes || !loginRes.token || loginRes.code !== 'ok') {
+                        this.showTitle = false;
+                        this.showError = true;
+                        return;
+                    }
+
+                    localStorage.setItem(process.env.tokenKey, loginRes.token);
+                    const userRes = await this.$store.dispatch('FETCH_USER');
+                    if (userRes) {
+                        this.$router.push('/');
+                    } else {
+                        this.showTitle = false;
+                        this.showError = true;
+                    }
+                } catch (err) {
+                  this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
                 }
             }
         }

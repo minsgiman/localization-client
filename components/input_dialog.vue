@@ -41,7 +41,6 @@
 </template>
 
 <script>
-    import gEventBus from '@/store/gEventBus';
     import modal_dialog from './modal_dialog';
 
     function convertLangArrToStr (arr) {
@@ -88,19 +87,12 @@
         created : function () {
             this.dlgStatus = 'name';
             this.selectLanguages = ['ko', 'ja', 'en'];
-            gEventBus.$on('CREATE_PROJECT', this.onCreateProject);
-        },
-        beforeDestroy : function () {
-            gEventBus.$off('CREATE_PROJECT');
-        },
-        mounted : function () {
-
         },
         methods : {
             setDlgStatus: function (status) {
                 this.dlgStatus = status;
             },
-            createProject: function () {
+            async createProject() {
                 if (!this.projectName) {
                     alert("프로젝트 이름을 입력해주세요.");
                     this.setDlgStatus('name');
@@ -110,23 +102,26 @@
                     alert("언어를 선택해주세요.");
                     return;
                 }
-                const languages = convertLangArrToStr(this.selectLanguages);
-                this.$store.dispatch('CREATE_PROJECT', {
-                    name: this.projectName,
-                    languages: languages
-                });
+
+                try {
+                    this.$store.dispatch('SET_LOADING', true);
+                    const languages = convertLangArrToStr(this.selectLanguages);
+                    const cResponse = await this.$store.dispatch('CREATE_PROJECT', {name: this.projectName, languages});
+                    if (cResponse && cResponse.code === 'ok') {
+                        await this.$store.dispatch('FETCH_PROJECT_LIST');
+                        this.closeDlg();
+                    } else {
+                        alert("프로젝트 생성에 실패하였습니다.");
+                    }
+                    this.$store.dispatch('SET_LOADING', false);
+                } catch(err) {
+                    this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+                }
             },
             closeDlg: function () {
                 this.$emit('destroy');
                 this.$destroy();
-            },
-            onCreateProject: function(result) {
-                if(result) {
-                    this.closeDlg();
-                } else {
-                    alert("프로젝트 생성에 실패하였습니다.");
-                }
-            },
+            }
         },
         components: {
             modal_dialog

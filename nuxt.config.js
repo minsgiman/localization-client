@@ -32,7 +32,8 @@ export default {
 
   plugins: [
     '~plugins/GlobalComponents.js',
-    '~plugins/Notifications.js'
+    '~plugins/Notifications.js',
+    '~plugins/Util.js'
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)

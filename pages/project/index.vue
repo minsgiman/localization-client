@@ -247,7 +247,7 @@
             checkForm: function(e) {
                 let val = jQuery('#uploadFile').val();
                 if (val.indexOf('.xlsx') != -1) {
-                    this.$store.dispatch('SET_LOADING');
+                    this.$store.dispatch('SET_LOADING', true);
                     return true;
                 }
                 e.preventDefault();

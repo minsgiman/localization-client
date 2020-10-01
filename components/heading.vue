@@ -23,6 +23,7 @@
           },
           logout: function () {
               this.$store.dispatch('REQUEST_LOGOUT');
+              this.$router.push('/login');
           }
       }
   }
