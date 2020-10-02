@@ -97,9 +97,10 @@ const createStore = () => {
 
         async FETCH_USER({ commit }) {
           const response = await requestMiddleware(localeApi.getUser, null);
-          commit('UPDATE_USER', response.user ? response.user : null);
+          const user = (response && response.user) ? response.user : null;
+          commit('UPDATE_USER', user);
 
-          return response.user;
+          return user;
         },
 
         async FETCH_LOG_LIST({ state }) {

@@ -1,5 +1,5 @@
 <template>
-    <div class="cam-manage-cont">
+    <div class="cam-manage-cont" v-show="renderPage">
         <h3 class="select_title">Project를 선택하세요</h3>
         <div class="project_wrap">
             <tree-table
@@ -63,6 +63,7 @@
     export default {
         data : function() {
             return {
+                renderPage: false,
                 showInputDlg : false,
                 showCheckDlg : false,
                 showDeleteDlg : false,
@@ -137,11 +138,10 @@
                 return this.$store.state.projectList;
             }
         },
-        created : function() {
-        },
         mounted : function() {
             this.$store.dispatch('FETCH_USER').then((user) => {
                 if (user) {
+                    this.renderPage = true;
                     this.$store.dispatch('FETCH_PROJECT_LIST');
                 } else {
                     this.$router.push('/login');

@@ -3,10 +3,10 @@
         <div class="toggle cont_min" style="min-height: 535px; background-color:#ffffff;">
             <div class="wrap_login" style="background-color:#ffffff;">
                 <div v-show="showTitle" class="logo_header" style="background-color:#ffffff;">
-                    <img style="width:236px;height:25px;" src="~assets/img/bi_toastcambiz_blue.svg"><br>
+                    <img style="width:236px;height:25px;" src="~assets/img/bi-toastcam.svg"><br>
                 </div>
                 <div v-show="showError" class="logo_header"  style="background-color:#ffffff;">
-                    <img style="width:236px;height:25px;" src="~assets/img/bi_toastcambiz_blue.svg"><br>
+                    <img style="width:236px;height:25px;" src="~assets/img/bi-toastcam.svg"><br>
                     <div>
                         <span style="display:inline-block; width:20px; height:20px; margin-bottom:-5px; background: url(~assets/img/ic-login-fail.png) no-repeat; background-size:20px 20px;"></span>
                         <span style="display:inline-block; margin-top:20px; margin-bottom:4px; padding-left:6px; font-weight:500;" class="err_txt">로그인에 실패하였습니다.</span>
