@@ -55,6 +55,9 @@ const createStore = () => {
         selectSortType: 'strid' // strid, strid-rev, base, base-rev, key, key-rev
       },
       getters: {
+        isAdminUser: state => {
+          return state.user ? state.user.admin : false;
+        }
         // installListCount: state => {
         //     return state.installList.length;
         // }
@@ -93,6 +96,14 @@ const createStore = () => {
 
         FETCH_TRANSLATE_FILE : function({}, {projectName, lang, type}) {
           localeApi.getTranslateFile({projectName, lang, type});
+        },
+
+        async CREATE_USER({ commit }, {id, password}) {
+          commit('UPDATE_LOADING_STATE', true);
+          const response = await requestMiddleware(localeApi.createUser, {id, password});
+          commit('UPDATE_LOADING_STATE', false);
+
+          return response;
         },
 
         async FETCH_USER({ commit }) {

@@ -189,6 +189,14 @@ const localeAPI = {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
         }})
+    },
+    createUser: ({id, password}) => {
+        return axios.post(
+      `${api}/users/signup`, qs.stringify({id, password, admin: false}),
+      {headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+        }})
     }
 };
 

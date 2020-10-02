@@ -23,6 +23,9 @@
                     :selectable="tableProps.selectable">
             </tree-table>
         </div>
+        <div v-if="isAdmin" class="create_project acc_wrap">
+          <a class="btn-3d blue" v-on:click="showAccCreateDlg = true">계정 생성</a>
+        </div>
         <div class="create_project search_wrap">
             <a class="btn-3d blue" v-on:click="showSearchDlg = true">{{searchTxt}}</a>
         </div>
@@ -51,6 +54,10 @@
                 v-bind:title="searchTxt"
                 v-on:destroy="onSearchDlgDestroy()">
         </search_dlg>
+        <acc_create_dlg
+                v-if="showAccCreateDlg"
+                v-on:destroy="onAccCreateDlgDestroy()">
+        </acc_create_dlg>
     </div>
 </template>
 
@@ -59,6 +66,7 @@
     import check_dlg from '@/components/check_dialog';
     import search_dlg from '@/components/search_dialog';
     import remove_dlg from '@/components/project_remove_dialog';
+    import acc_create_dlg from '@/components/acc_create_dialog';
 
     export default {
         data : function() {
@@ -68,6 +76,7 @@
                 showCheckDlg : false,
                 showDeleteDlg : false,
                 showSearchDlg : false,
+                showAccCreateDlg : false,
                 selectedProject : null,
                 projectCreateTxt : "Project 생성",
                 searchTxt : "번역 전체 검색",
@@ -105,6 +114,9 @@
             }
         },
         computed : {
+            isAdmin: function() {
+                return this.$store.getters.isAdminUser;
+            },
             projectList : function () {
                 const tableList = [
                     {name: 'aos', set: '', remove: '', children: []},
@@ -175,6 +187,9 @@
             onSearchDlgDestroy: function (param) {
                 this.showSearchDlg = false;
             },
+            onAccCreateDlgDestroy: function (param) {
+                this.showAccCreateDlg = false;
+            },
             cellClick: function(row, rowIndex, column, columnIndex, $event) {
                 if (row.uuid) {
                     const selectProject = this.storeProjectList.find((item) => item.uuid === row.uuid);
@@ -200,7 +215,8 @@
             input_dlg,
             check_dlg,
             remove_dlg,
-            search_dlg
+            search_dlg,
+            acc_create_dlg
         }
     }
 </script>
@@ -230,6 +246,9 @@
                 .btn-3d {
                     font-size: 18px;
                 }
+            }
+            &.acc_wrap {
+              bottom: 300px;
             }
         }
     }

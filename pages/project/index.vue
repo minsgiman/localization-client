@@ -69,12 +69,17 @@
                     <option value="key">등록순</option>
                     <option value="key-rev">등록역순</option>
                 </select>
-                <input class="tag_search" v-model="tagSearch" placeholder="태그검색" type="text">
-                <button class="empty_tag" @click="setUseEmptyTag(true)">Empty태그보기</button>
                 <button class="remove_all_btn" @click="showAllTrRemoveDlg = true;">전체삭제</button>
                 <button class="remove_all_btn" @click="showLogList()">로그보기</button>
             </div>
-
+            <div class="tr-search_wrap">
+              <div class="input_txt_area">
+                <input type="text" v-model="trSearch" placeholder="번역검색(By Base)">
+                <button v-show="trSearch" @click="() => {this.trSearch = '';}" class="btn_del" tabindex="-1">
+                  <img src="~assets/img/btn-input-text-delete.png">
+                </button>
+              </div>
+            </div>
             <div v-if="renderTranslateList" class="locale_item_wrap">
                 <table class="table-locale" cellpadding="30">
                     <tr>
@@ -88,7 +93,7 @@
                     </tr>
 
                     <locale_item_cell v-for="(item, index) in translateList"
-                                      v-if="(!useEmptyTag && !tagSearch) || (useEmptyTag && !item.tag) || (!useEmptyTag && tagSearch && tagSearch === item.tag)"
+                                      v-if="!trSearch || (trSearch && includeCheck(trSearch, item.base))"
                                       :uid="item.uid" :pLocaleObj="item" :pSelectLang="selectedLang" :pIdx="index" :key="item.uid"
                                       v-on:deleteTranslate="onDeleteTranslate(item.uid, item.strid, item.base)">
                     </locale_item_cell>
@@ -174,14 +179,11 @@
                 deleteBase: '',
                 selectedLang: '',
                 selectSortType: '',
-                tagSearch: '',
-                useEmptyTag: false
+                trSearch: ''
             }
         },
         watch : {
-            tagSearch : function (val) {
-                console.log('tagSearchChanged');
-                this.setUseEmptyTag(false);
+            trSearch : function (val) {
             }
         },
         computed : {
@@ -227,6 +229,9 @@
             this.action = process.env.baseUrl + '/translateList/file';
         },
         methods : {
+            includeCheck: function(search, translate) {
+                return translate.indexOf(search) !== -1;
+            },
             sortTypeChange: function(event) {
                 this.$store.dispatch('SET_LOADING', true);
                 setTimeout(() => {
@@ -246,9 +251,6 @@
             },
             sampleDownload: function() {
                 this.$store.dispatch('FETCH_SAMPLE_FILE');
-            },
-            setUseEmptyTag: function(value) {
-                this.useEmptyTag = value;
             },
             checkForm: function(e) {
                 let val = jQuery('#uploadFile').val();
@@ -508,18 +510,21 @@
             .select_lang_name {
                 color:#4b96e6;
             }
-            .tag_search {
-                margin-left:20px;
-                font-size:14px;
-            }
-            .empty_tag {
-                font-size: 10px;
-                padding: 2px 4px;
-                margin-left: 2px;
-            }
             select {
                 font-size:14px;
             }
+        }
+
+        .tr-search_wrap {
+          margin:0 0 20px 100px;
+          .input_txt_area {
+            width: 500px;
+            input {
+              border: none;
+              padding: 2px;
+              font-size: 16px;
+            }
+          }
         }
 
         .btn_wrap {

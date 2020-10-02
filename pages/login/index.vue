@@ -20,12 +20,16 @@
                                 <div id="idArea">
                                     <div class="input_txt_area input_email_id" id="idInput">
                                         <input id="id" placeholder="ID" type="text" value="" autocapitalize="none" v-model="valId">
-                                        <button v-show="valId" @click="() => {this.valId = '';}" id="idBtn" type="button" class="btn_del" tabindex="-1"><img src="~assets/img/btn-input-text-delete.png" style="width:20px; height:20px; top:0; vertical-align:middle;"></button>
+                                        <button v-show="valId" @click="() => {this.valId = '';}" id="idBtn" type="button" class="btn_del" tabindex="-1">
+                                          <img src="~assets/img/btn-input-text-delete.png">
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="input_txt_area" id="pwInput">
                                     <input id="pw" placeholder="password" type="password" maxlength="15" v-model="valPw">
-                                    <button v-show="valPw" @click="() => {this.valPw = '';}" id="pwBtn" type="button" class="btn_del" tabindex="-1"><img src="~assets/img/btn-input-text-delete.png" style="width:20px; height:20px; top:0; vertical-align:middle;"></button>
+                                    <button v-show="valPw" @click="() => {this.valPw = '';}" id="pwBtn" type="button" class="btn_del" tabindex="-1">
+                                      <img src="~assets/img/btn-input-text-delete.png">
+                                    </button>
                                 </div>
                             </div>
                             <div class="login_area">
@@ -101,17 +105,6 @@
         margin: 0 auto;max-width: 330px;position: relative;
         .login_area{
           position: relative; z-index: 100; margin-top: 16px;
-          .input_txt_area{
-            position: relative;display: block;height: 18px;margin-bottom: 8px;padding: 11px 14px 9px;background-color: #fff;border: 1px solid #e0e0e0;z-index: 10;max-width: 100%;padding-right: 35px;
-            &:focus-within{border: solid 1px #858585;}
-            input{overflow: hidden; width: 100%; height: 18px; font-size: 15px; line-height: 18px; vertical-align: middle; background-color: #fff; color: #333;}
-            .btn_del{
-              overflow: hidden; display: inline-block; position: absolute; top: 0; right: 0px; width: 35px; height: 38px; line-height: 38px; text-align: center; cursor: pointer; vertical-align: top; background-color: #fff; z-index: 101;
-              img {
-                position: relative; top: 14px;
-              }
-            }
-          }
         }
       }
       .btn_v1{width: 100%; background-color: #4a96e6; color: #fff; display: block; height: 46px; line-height: 46px; text-align: center; font-size: 15px; font-weight: normal; cursor: pointer; margin-top: 12px;}
