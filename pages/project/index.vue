@@ -139,7 +139,6 @@
     import all_remove_dlg from '@/components/translate_remove_dialog';
     import locale_item_cell from '@/components/locale_item_cell';
     import loglist_dlg from '@/components/loglist_dialog';
-    import gEventBus from '@/store/gEventBus';
     import jQuery from 'jquery';
 
     function convertLangStrToArr (str) {
@@ -215,28 +214,35 @@
             this.$store.dispatch('SET_CURRENT_PROJECT', {name, uuid, languages});
             this.selectedLang = 'all';
             this.selectSortType = this.$store.state.selectSortType;
-            gEventBus.$on('UPDATE_TRANSLATE_LIST', this.onUpdateTranslateList);
-            gEventBus.$on('ADD_TRANSLATE', this.onAddTranslate);
-            gEventBus.$on('FETCH_LOG_LIST', this.onFetchLogList);
         },
         mounted : function() {
-            this.$store.dispatch('FETCH_TRANSLATE_LIST');
+            this.$store.dispatch('FETCH_TRANSLATE_LIST').then((res) => {
+                this.renderTranslateList = false;
+                setTimeout(() => {
+                    this.renderTranslateList = true;
+                }, 0);
+            }).catch((err) => {
+                this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+            });
             this.action = process.env.baseUrl + '/translateList/file';
-        },
-        beforeDestroy : function() {
-            gEventBus.$off('UPDATE_TRANSLATE_LIST');
-            gEventBus.$off('ADD_TRANSLATE');
-            gEventBus.$off('FETCH_LOG_LIST');
         },
         methods : {
             sortTypeChange: function(event) {
                 this.$store.dispatch('SET_LOADING', true);
                 setTimeout(() => {
                     this.$store.dispatch('SORT_TRANSLATE_LIST', event.target.value);
+                    setTimeout(() => {
+                        this.$store.dispatch('SET_LOADING', false);
+                    }, 100);
                 }, 100);
             },
             showLogList: function() {
-                this.$store.dispatch('FETCH_LOG_LIST');
+                this.$store.dispatch('FETCH_LOG_LIST').then((loglist) => {
+                    this.loglist = loglist.reverse();
+                    this.showLogListDlg = true;
+                }).catch((err) => {
+                    this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+                });
             },
             sampleDownload: function() {
                 this.$store.dispatch('FETCH_SAMPLE_FILE');
@@ -253,15 +259,22 @@
                 e.preventDefault();
                 alert('.xlsx 파일을 업로드 해주세요.');
             },
-            removeAllTranslate: function() {
-                this.$store.dispatch('REMOVE_ALL_TRANSLATE', {name: this.projectName, uuid: this.projectUUID});
-            },
             addTranslate: function() {
                 let key, data = {};
                 for (key in this.inputLocaleObj) {
                     data[key] = this.inputLocaleObj[key];
                 }
-                this.$store.dispatch('ADD_TRANSLATE', data);
+                this.$store.dispatch('ADD_TRANSLATE', data).then((res) => {
+                  if (res && res.code === 'ok') {
+                      for (let key in this.inputLocaleObj) {
+                          this.inputLocaleObj[key] = '';
+                      }
+                  } else {
+                      alert("번역어 생성에 실패하였습니다.");
+                  }
+                }).catch((err) => {
+                    this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+                })
             },
             showLangSelectDlg: function(type) {
                 this.showSelectLang = true;
@@ -290,32 +303,11 @@
             goBottom: function() {
                 window.scrollTo(0, document.getElementById('project_view').scrollHeight);
             },
-            onFetchLogList: function(result) {
-                this.loglist = result.reverse();
-                this.showLogListDlg = true;
-            },
-            onUpdateTranslateList: function() {
-                this.renderTranslateList = false;
-                setTimeout(() => {
-                    this.renderTranslateList = true;
-                }, 0);
-            },
             onDeleteTranslate: function(id, strid, base) {
                 this.deleteId = id;
                 this.deleteStrId = strid;
                 this.deleteBase = base;
                 this.showTrRemoveDlg = true;
-            },
-            onAddTranslate: function(result) {
-                if(result) {
-                    let key;
-                    for (key in this.inputLocaleObj) {
-                        this.inputLocaleObj[key] = '';
-                    }
-                    //alert("번역어 생성에 성공하였습니다.")
-                } else {
-                    alert("번역어 생성에 실패하였습니다.");
-                }
             },
             onTrRemoveDlgDestroy: function() {
                 this.showTrRemoveDlg = false;

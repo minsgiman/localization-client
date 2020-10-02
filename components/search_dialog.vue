@@ -34,7 +34,6 @@
 </template>
 <script>
     import modal_dlg from '@/components/modal_dialog';
-    import gEventBus from '@/store/gEventBus';
 
     export default {
         props: ['title'],
@@ -53,19 +52,14 @@
                 return this.$store.state.isLoading;
             }
         },
-        created : function() {
-            gEventBus.$on('SEARCH_TRANSLATE_LIST', this.onSearchTranslateList);
-        },
-        mounted : function() {
-
-        },
-        beforeDestroy : function() {
-            gEventBus.$off('SEARCH_TRANSLATE_LIST');
-        },
         methods: {
             searchTranslate: function() {
                 if (this.searchStr) {
-                    this.$store.dispatch('FETCH_SEARCHED_TRANSLATE_LIST', this.searchStr);
+                    this.$store.dispatch('FETCH_SEARCHED_TRANSLATE_LIST', this.searchStr).then((translateList) => {
+                        this.translateList = translateList;
+                    }).catch((err) => {
+                        this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+                    });
                 } else {
                     alert('검색어를 입력해주세요.');
                 }
@@ -75,10 +69,7 @@
             },
             closeDialog: function() {
                 this.$emit('destroy');
-            },
-            onSearchTranslateList: function(translateList) {
-                this.translateList = translateList ? translateList : [];
-            },
+            }
         },
         components : {
             modal_dlg

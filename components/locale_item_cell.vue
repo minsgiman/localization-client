@@ -29,8 +29,6 @@
     </tr>
 </template>
 <script>
-    import gEventBus from '@/store/gEventBus';
-
     function convertLangStrToArr (str) {
         if (!str) {
             return [];
@@ -67,12 +65,10 @@
         },
         created : function() {
             this.localeObj = JSON.parse(JSON.stringify(this.pLocaleObj));
-            gEventBus.$on('UPDATE_TRANSLATE_' + this.uid, this.onUpdateTranslate);
         },
         mounted : function() {
         },
         beforeDestroy : function () {
-            gEventBus.$off('UPDATE_TRANSLATE_' + this.uid);
             if (this.isEdit) {
                 this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', '');
             }
@@ -106,19 +102,24 @@
                 this.$store.dispatch('UPDATE_TRANSLATE', {
                     stringId: this.uid,
                     localeObj: this.editLocaleObj,
-                });
+                }).then((res) => {
+                    if (res) {
+                        if (res.code === 'ok') {
+                            this.localeObj = JSON.parse(JSON.stringify(this.editLocaleObj));
+                        } else if (res.code === 'duplicated') {
+                            alert('중복된 StringID입니다.');
+                        }
+                    } else {
+                        alert("번역어 업데이트에 실패하였습니다.");
+                    }
+                    this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', '');
+                }).catch((err) => {
+                    this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+                })
             },
             textEnterKey: function(event) {
                 event.preventDefault();
-            },
-            onUpdateTranslate: function(result) {
-                if(result) {
-                    this.localeObj = JSON.parse(JSON.stringify(this.editLocaleObj));
-                } else {
-                    alert("번역어 업데이트에 실패하였습니다.");
-                }
-                this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', '');
-            },
+            }
         }
     }
 </script>

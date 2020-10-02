@@ -7,10 +7,6 @@ const supportLangs = process.env.suportLanguages;
 const baseLang = process.env.baseLanguage;
 const tokenKey = process.env.tokenKey;
 
-function axiosNoAuthCheck(error) {
-    return (error.response && (error.response.status === 401 || error.response.status === 403));
-}
-
 function ajaxNoAuthCheck(error) {
     return (error.status === 401 || error.status === 403);
 }
@@ -40,15 +36,9 @@ function getFormData(dataObj) {
 }
 
 const localeAPI = {
-    getLogList: (projectName, callback) => {
-        axios.get(`${api}/projects/${projectName}/logs`,
-            {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})
-            .then((response) => {
-                callback(response.data);
-            }, (error) => {
-                console.log('get logList Error : ' + error);
-                axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-            });
+    getLogList: (projectName) => {
+        return axios.get(`${api}/projects/${projectName}/logs`,
+        {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})
     },
     getSampleFile: () => {
         jquery.ajax({
@@ -102,99 +92,67 @@ const localeAPI = {
         return axios.get(`${api}/projects`,
       {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})
     },
-    getTranslateList: (projectUUID, callback) => {
-        axios.get(`${api}/translateList?projectUUID=${projectUUID}`,
-            {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})
-            .then((response) => {
-                callback(response.data);
-            }, (error) => {
-                console.log('getTranslateList Error : ' + error);
-                axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-            });
+    getTranslateList: (projectUUID) => {
+        return axios.get(`${api}/translateList?projectUUID=${projectUUID}`,
+        {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})
     },
-    getSearchList: (search, callback) => {
-        axios.get(`${api}/translates/search?search=${search}`,
-            {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})
-            .then((response) => {
-                callback(response.data);
-            }, (error) => {
-                console.log('searchTranslate Error : ' + error);
-                axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-            });
+    getSearchList: (search) => {
+        return axios.get(`${api}/translates/search?search=${search}`,
+        {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})
     },
-    addTranslate: (strDataJSON, projectJSON, callback) => {
-        let i, len, dataObj = {
-            project: projectJSON.name,
-            uuid: projectJSON.uuid,
-            base: strDataJSON[baseLang] ? strDataJSON[baseLang] : '',
-            tag: strDataJSON.tag ? strDataJSON.tag : ''
-        };
-        for (i = 0, len = supportLangs.length; i < len; i+=1) {
-            dataObj[supportLangs[i]] = strDataJSON[supportLangs[i]] ? strDataJSON[supportLangs[i]] : '';
-        }
+    addTranslate: ({strData, projectData}) => {
+      let i, len, dataObj = {
+          project: projectData.name,
+          uuid: projectData.uuid,
+          base: strData[baseLang] ? strData[baseLang] : '',
+          tag: strData.tag ? strData.tag : ''
+      };
+      for (i = 0, len = supportLangs.length; i < len; i+=1) {
+          dataObj[supportLangs[i]] = strData[supportLangs[i]] ? strData[supportLangs[i]] : '';
+      }
 
-        return axios.post(
-      `${api}/translates`, qs.stringify(dataObj),
-      {headers: {
-           'Content-Type': 'application/x-www-form-urlencoded',
-           'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-         }})
-        .then((response) => {
-          callback(response.data);
-        }, (error) => {
-          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-        });
+      return axios.post(
+    `${api}/translates`, qs.stringify(dataObj),
+    {headers: {
+         'Content-Type': 'application/x-www-form-urlencoded',
+         'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+       }})
     },
-    updateTranslate: (strDataJSON, callback) => {
+    updateTranslate: (strData) => {
         let i, len, dataObj = {
-            strid: strDataJSON.localeObj.strid,
-            tag: strDataJSON.localeObj.tag,
-            base: strDataJSON.localeObj.base ? strDataJSON.localeObj.base : '',
-            project: strDataJSON.project
+            strid: strData.localeObj.strid,
+            tag: strData.localeObj.tag,
+            base: strData.localeObj.base ? strData.localeObj.base : '',
+            project: strData.project
         };
         for (i = 0, len = supportLangs.length; i < len; i+=1) {
-            dataObj[supportLangs[i]] = strDataJSON.localeObj[supportLangs[i]] ? strDataJSON.localeObj[supportLangs[i]] : '';
+            dataObj[supportLangs[i]] = strData.localeObj[supportLangs[i]] ? strData.localeObj[supportLangs[i]] : '';
         }
 
         return axios.put(
-        `${api}/translates/${strDataJSON.stringId}`, qs.stringify(dataObj),
-        {headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-          }})
-        .then((response) => {
-          callback(response.data);
-        }, (error) => {
-          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-        });
+      `${api}/translates/${strData.stringId}`, qs.stringify(dataObj),
+      {headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+        }})
     },
-    removeTranslate: (strDataJSON, projectName, callback) => {
+    removeTranslate: ({id, projectName}) => {
         return axios.delete(
-          `${api}/translates/${strDataJSON.id}`,
-        {headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-          }, params: {
-            project: projectName
-          }})
-        .then((response) => {
-          callback(response.data);
-        }, (error) => {
-          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-        });
+        `${api}/translates/${id}`,
+      {headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+        }, params: {
+          project: projectName
+        }})
     },
-    removeAllTranslateInProject: (projectName, uuid, callback) => {
+    removeAllTranslateInProject: ({name, uuid}) => {
       return axios.delete(
-        `${api}/projects/${projectName}/translates`,
-        {headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
-          }, params: { uuid }})
-        .then((response) => {
-          callback(response.data);
-        }, (error) => {
-          axiosNoAuthCheck(error) ? location.href = '/login' : callback(null);
-        });
+    `${api}/projects/${name}/translates`,
+    {headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+      }, params: { uuid }})
     },
     removeProject: ({name, uuid}) => {
       return axios.delete(

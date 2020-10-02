@@ -15,7 +15,6 @@
 </template>
 
 <script>
-    import gEventBus from '@/store/gEventBus';
     import modal_dialog from './modal_dialog';
 
     export default {
@@ -38,41 +37,26 @@
                 stringId: ''
             }
         },
-        computed : {
-        },
-        created : function () {
-            gEventBus.$on('REMOVE_TRANSLATE', this.onRemoveTranslate);
-        },
-        beforeDestroy : function () {
-            gEventBus.$off('REMOVE_TRANSLATE');
-        },
-        mounted : function () {
-
-        },
         methods : {
             removeTranslate: function () {
-                if (this.deleteId) {
-                    this.$store.dispatch('REMOVE_TRANSLATE', {
-                        id: this.deleteId,
-                        strid: this.deleteStrId,
-                        base: this.deleteBase
-                    });
-                } else {
+                if (!this.deleteId) {
                     alert("string ID가 잘못되었습니다.");
+                    return;
                 }
+                this.$store.dispatch('REMOVE_TRANSLATE', this.deleteId).then((res) => {
+                    if (res && res.code === 'ok') {
+                        this.closeDlg();
+                    } else {
+                        alert("번역어 삭제에 실패하였습니다.");
+                    }
+                }).catch((err) => {
+                    this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+                });
             },
             closeDlg: function () {
                 this.$emit('destroy');
                 this.$destroy();
-            },
-            onRemoveTranslate: function(result) {
-                if(result) {
-                    this.closeDlg();
-                    //alert("번역어 삭제에 성공하였습니다.")
-                } else {
-                    alert("번역어 삭제에 실패하였습니다.");
-                }
-            },
+            }
         },
         components: {
             modal_dialog
