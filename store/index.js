@@ -82,6 +82,10 @@ const createStore = () => {
           commit('UPDATE_SELECT_SORT_TYPE', sortType);
         },
 
+        SET_TRANSLATE_LIST : function({ commit }, list) {
+          commit('UPDATE_TRANSLATE_LIST', list ? list : []);
+        },
+
         SET_LOADING : function({ commit }, param) {
           commit('UPDATE_LOADING_STATE', param);
         },
@@ -121,12 +125,10 @@ const createStore = () => {
         },
 
         async FETCH_TRANSLATE_LIST({ commit, state }) {
-          commit('UPDATE_LOADING_STATE', true);
           const response = await requestMiddleware(localeApi.getTranslateList, state.currentProject.uuid);
           let translateList = (response && response.result) ? response.result : [];
           translateList = sortTranslateList(translateList, state.selectSortType);
           commit('UPDATE_TRANSLATE_LIST', translateList);
-          commit('UPDATE_LOADING_STATE', false);
 
           return response;
         },

@@ -216,17 +216,25 @@
             this.$store.dispatch('SET_CURRENT_PROJECT', {name, uuid, languages});
             this.selectedLang = 'all';
             this.selectSortType = this.$store.state.selectSortType;
+            this.action = process.env.baseUrl + '/translateList/file';
         },
         mounted : function() {
-            this.$store.dispatch('FETCH_TRANSLATE_LIST').then((res) => {
-                this.renderTranslateList = false;
-                setTimeout(() => {
-                    this.renderTranslateList = true;
-                }, 0);
-            }).catch((err) => {
-                this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
-            });
-            this.action = process.env.baseUrl + '/translateList/file';
+            setTimeout(() => {
+                this.$store.dispatch('SET_LOADING', true);
+                this.$store.dispatch('FETCH_TRANSLATE_LIST').then((res) => {
+                    this.renderTranslateList = false;
+                    setTimeout(() => {
+                        this.renderTranslateList = true;
+                        this.$store.dispatch('SET_LOADING', false);
+                    }, 0);
+                }).catch((err) => {
+                    this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+                });
+            }, 0);
+        },
+        beforeDestroy : function() {
+            this.renderTranslateList = false;
+            this.$store.dispatch('SET_TRANSLATE_LIST', []);
         },
         methods : {
             includeCheck: function(search, translate) {

@@ -111,7 +111,7 @@
                 table {
                     display: block;
                     overflow: auto;
-                    height: 500px;
+                    height: 400px;
                     border-top: 2px solid #4a4a4a;
                     border-collapse: collapse;
                     width: 100%;
