@@ -109,6 +109,14 @@ const localeAPI = {
                 processData: false,
                 contentType: false,
                 data: formData,
+                xhr: function() {
+                    const xhr = jquery.ajaxSettings.xhr();
+                    xhr.upload.onprogress = function(e) {
+                        const percent = e.loaded * 100 / e.total;
+                        //console.log('percent : ' + percent);
+                    };
+                    return xhr;
+                },
                 success: function(data) {
                     resolve({data});
                 },
