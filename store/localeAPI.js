@@ -102,7 +102,10 @@ const localeAPI = {
             formData.append('file', inputEl.files[0]);
             jquery.ajax({
                 type: 'POST',
-                url: `${api}/translateList/file/${projectName}`,
+                url: `${api}/translates/file/${projectName}`,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
+                },
                 processData: false,
                 contentType: false,
                 data: formData,
