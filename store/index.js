@@ -102,6 +102,23 @@ const createStore = () => {
           localeApi.getTranslateFile({projectName, lang, type});
         },
 
+        async UPLOAD_FORM({ commit, state }, {projectName, elId}) {
+          commit('UPDATE_LOADING_STATE', true);
+
+          const response = await requestMiddleware(localeApi.uploadForm, {projectName, elId});
+
+          if (response && response.code === 'ok') {
+            const listRes = await requestMiddleware(localeApi.getTranslateList, state.currentProject.uuid);
+            let translateList = (listRes && listRes.result) ? listRes.result : [];
+            translateList = sortTranslateList(translateList, state.selectSortType);
+            commit('UPDATE_TRANSLATE_LIST', translateList);
+          }
+
+          commit('UPDATE_LOADING_STATE', false);
+
+          return response;
+        },
+
         async CREATE_USER({ commit }, {id, password}) {
           commit('UPDATE_LOADING_STATE', true);
           const response = await requestMiddleware(localeApi.createUser, {id, password});

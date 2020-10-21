@@ -88,6 +88,35 @@ const localeAPI = {
           }
         });
     },
+
+    uploadForm: ({projectName, elId}) => {
+        const formData = new FormData();
+        const inputEl = document.getElementById(elId);
+
+        return new Promise((resolve, reject) => {
+            if (!inputEl) {
+                reject(new Error("wrong element Id"));
+                return;
+            }
+
+            formData.append('file', inputEl.files[0]);
+            jquery.ajax({
+                type: 'POST',
+                url: `${api}/translateList/file/${projectName}`,
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function(data) {
+                    resolve({data});
+                },
+                error: function (error) {
+                    ajaxNoAuthCheck(error) ? location.href = '/login' : null;
+                    reject(new Error("get server error"));
+                }
+            });
+        })
+    },
+
     getProjects: () => {
         return axios.get(`${api}/projects`,
       {headers: {Authorization: `Bearer ${localStorage.getItem(tokenKey)}`}})

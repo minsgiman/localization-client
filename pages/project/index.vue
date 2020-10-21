@@ -30,15 +30,12 @@
                 <div class="info_wrap">
                     <div class="container">
                         <div class="upload_form_cont">
-                            <form id="upload_form" @submit="checkForm" enctype="multipart/form-data" method="post" v-bind:action="action">
+                            <form id="upload_form">
                                 <span>
                                     <span><label for="uploadFile">xlsx 파일을 선택해주세요.</label></span>
-                                    <span><input type="file" v-bind:name="projectName" id="uploadFile"/></span>
+                                    <span><input type="file" id="uploadFile"/></span>
                                 </span>
-                                <span id="upload_wrap">
-                                    <label for="submit_file">업로드</label>
-                                    <input type="submit" id="submit_file" name="Upload"/>
-                                </span>
+                                <span id="upload_wrap" @click="uploadForm()">업로드</span>
                             </form>
                             <span class="simple-btn-wrap">
                                 <button class="btn-simple" v-on:click="sampleDownload()">샘플 다운로드</button>
@@ -144,7 +141,6 @@
     import all_remove_dlg from '@/components/translate_remove_dialog';
     import locale_item_cell from '@/components/locale_item_cell';
     import loglist_dlg from '@/components/loglist_dialog';
-    import jQuery from 'jquery';
 
     function convertLangStrToArr (str) {
         if (!str) {
@@ -173,7 +169,6 @@
                 selectDownloadType : '',
                 renderTranslateList : true,
                 inputLocaleObj: {},
-                action: '',
                 deleteId: '',
                 deleteStrId: '',
                 deleteBase: '',
@@ -216,7 +211,6 @@
             this.$store.dispatch('SET_CURRENT_PROJECT', {name, uuid, languages});
             this.selectedLang = 'all';
             this.selectSortType = this.$store.state.selectSortType;
-            this.action = process.env.baseUrl + '/translateList/file';
         },
         mounted : function() {
             setTimeout(() => {
@@ -260,15 +254,29 @@
             sampleDownload: function() {
                 this.$store.dispatch('FETCH_SAMPLE_FILE');
             },
-            checkForm: function(e) {
-                let val = jQuery('#uploadFile').val();
-                if (val.indexOf('.xlsx') != -1) {
-                    this.$store.dispatch('SET_LOADING', true);
-                    return true;
+
+            uploadForm: function() {
+                const elId = 'uploadFile';
+                const fileInputEl = document.getElementById(elId);
+                let val = fileInputEl.value;
+
+                if (val.indexOf('.xlsx') === -1) {
+                    alert('.xlsx 파일을 업로드 해주세요.');
+                    return;
                 }
-                e.preventDefault();
-                alert('.xlsx 파일을 업로드 해주세요.');
+
+                this.$store.dispatch('UPLOAD_FORM', {projectName: this.projectName, elId}).then((res) => {
+                    if (res && res.code === 'ok') {
+                        fileInputEl.value = '';
+                    } else {
+                        alert('번역어 업로드에 실패하였습니다.');
+                    }
+                }).catch((err) => {
+                    this.$store.dispatch('SET_LOADING', false);
+                    alert(`error: ${err}`)
+                })
             },
+
             addTranslate: function() {
                 let key, data = {};
                 for (key in this.inputLocaleObj) {
@@ -385,13 +393,8 @@
         #uploadFile {
             width:400px;
         }
-        #submit_file {
-            display:none;
-        }
         #upload_wrap {
             display:inline-block;
-        }
-        #upload_wrap label {
             width:100px;
             height:26px;
             padding-top:10px;
