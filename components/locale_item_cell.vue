@@ -51,7 +51,7 @@
         },
         computed : {
             defaultLang : function () {
-                return process.env.baseLanguage;
+                return this.$store.state.currentProject.baseLang;
             },
             currentEditTranslateId : function () {
                 return this.$store.state.currentEditTranslateId;
@@ -82,7 +82,6 @@
                     for (key in this.localeObj) {
                         data[key] = this.localeObj[key];
                     }
-                    delete data.base;
                     delete data.strid;
                     this.$store.dispatch('ADD_TRANSLATE', data);
             },
@@ -96,9 +95,6 @@
                 this.$store.dispatch('UPDATE_EDIT_TRANSLATE_ID', '');
             },
             saveEdit: function() {
-                if (this.pSelectLang === this.defaultLang) {
-                    this.editLocaleObj.base = this.editLocaleObj[this.pSelectLang];
-                }
                 this.$store.dispatch('UPDATE_TRANSLATE', {
                     stringId: this.uid,
                     localeObj: this.editLocaleObj,

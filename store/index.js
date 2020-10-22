@@ -14,7 +14,7 @@ function checkStrIdExist(list, strId, key) {
   return isExist;
 }
 
-function sortTranslateList(list, type) {
+function sortTranslateList(list, type, baseLang) {
   list.sort(function (a, b) {
     var aLabel, bLabel;
 
@@ -22,8 +22,8 @@ function sortTranslateList(list, type) {
       aLabel = (a && a.strid) ? a.strid.toLowerCase() : '';
       bLabel = (b && b.strid) ? b.strid.toLowerCase() : '';
     } else if (type.indexOf('base') != -1) {
-      aLabel = (a && a.base) ? a.base.toLowerCase() : '';
-      bLabel = (b && b.base) ? b.base.toLowerCase() : '';
+      aLabel = (a && a[baseLang]) ? a[baseLang].toLowerCase() : '';
+      bLabel = (b && b[baseLang]) ? b[baseLang].toLowerCase() : '';
     } else {
       aLabel = (a && a.uid) ? a.uid.toLowerCase() : '';
       bLabel = (b && b.uid) ? b.uid.toLowerCase() : '';
@@ -77,7 +77,7 @@ const createStore = () => {
         },
 
         SORT_TRANSLATE_LIST : function({ commit, state }, sortType) {
-          let translateList = sortTranslateList(state.currentTranslateList, sortType);
+          let translateList = sortTranslateList(state.currentTranslateList, sortType, state.currentProject.baseLang);
           commit('UPDATE_TRANSLATE_LIST', translateList);
           commit('UPDATE_SELECT_SORT_TYPE', sortType);
         },
@@ -110,7 +110,7 @@ const createStore = () => {
           if (response && response.code === 'ok') {
             const listRes = await requestMiddleware(localeApi.getTranslateList, state.currentProject.uuid);
             let translateList = (listRes && listRes.result) ? listRes.result : [];
-            translateList = sortTranslateList(translateList, state.selectSortType);
+            translateList = sortTranslateList(translateList, state.selectSortType, state.currentProject.baseLang);
             commit('UPDATE_TRANSLATE_LIST', translateList);
           }
 
@@ -144,7 +144,7 @@ const createStore = () => {
         async FETCH_TRANSLATE_LIST({ commit, state }) {
           const response = await requestMiddleware(localeApi.getTranslateList, state.currentProject.uuid);
           let translateList = (response && response.result) ? response.result : [];
-          translateList = sortTranslateList(translateList, state.selectSortType);
+          translateList = sortTranslateList(translateList, state.selectSortType, state.currentProject.baseLang);
           commit('UPDATE_TRANSLATE_LIST', translateList);
 
           return response;
@@ -154,7 +154,7 @@ const createStore = () => {
           commit('UPDATE_LOADING_STATE', true);
           const response = await requestMiddleware(localeApi.getSearchList, search);
           let translateList = (response && response.result) ? response.result : [];
-          translateList = sortTranslateList(translateList, state.selectSortType);
+          translateList = sortTranslateList(translateList, state.selectSortType, state.currentProject.baseLang);
           commit('UPDATE_LOADING_STATE', false);
 
           return translateList;
@@ -224,20 +224,29 @@ const createStore = () => {
           return projectList;
         },
 
-        async UPDATE_PROJECT({ commit }, {name, languages}) {
-          const response = await requestMiddleware(localeApi.updateProject, {name, languages});
+        async UPDATE_PROJECT({ commit }, {name, languages, base}) {
+          const response = await requestMiddleware(localeApi.updateProject, {name, languages, base});
 
           return response;
         },
 
-        async CREATE_PROJECT({ commit }, {name, languages}) {
-          const response = await requestMiddleware(localeApi.createProject, {name, languages});
+        async CREATE_PROJECT({ commit }, {name, languages, base}) {
+          const response = await requestMiddleware(localeApi.createProject, {name, languages, base});
 
           return response;
         },
 
-        SET_CURRENT_PROJECT: function({ commit }, projectJSON) {
-          commit('UPDATE_CURRENT_PROJECT', projectJSON);
+        SET_CURRENT_PROJECT: function({ commit, state }, {name}) {
+          if (state.projectList.length) {
+              let currentProject = null;
+              state.projectList.some((project) => {
+                  if (project.name === name) {
+                      currentProject = project;
+                  }
+                  return project.name === name;
+              });
+              commit('UPDATE_CURRENT_PROJECT', currentProject);
+          }
         }
       },
 

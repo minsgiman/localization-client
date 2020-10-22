@@ -71,7 +71,7 @@
             </div>
             <div class="tr-search_wrap">
               <div class="input_txt_area">
-                <input type="text" v-model="trSearch" placeholder="번역검색(By Base)">
+                <input type="text" v-model="trSearch" placeholder="번역검색(By 한국어, 일본어)">
                 <button v-show="trSearch" @click="() => {this.trSearch = '';}" class="btn_del" tabindex="-1">
                   <img src="~assets/img/btn-input-text-delete.png">
                 </button>
@@ -90,9 +90,9 @@
                     </tr>
 
                     <locale_item_cell v-for="(item, index) in translateList"
-                                      v-if="!trSearch || (trSearch && includeCheck(trSearch, item.base))"
+                                      v-if="!trSearch || (trSearch && includeCheck(trSearch, item[defaultLang]))"
                                       :uid="item.uid" :pLocaleObj="item" :pSelectLang="selectedLang" :pIdx="index" :key="item.uid"
-                                      v-on:deleteTranslate="onDeleteTranslate(item.uid, item.strid, item.base)">
+                                      v-on:deleteTranslate="onDeleteTranslate(item.uid, item.strid, item[defaultLang])">
                     </locale_item_cell>
                 </table>
             </div>
@@ -191,6 +191,9 @@
             projectLanguages : function () {
                 return convertLangStrToArr(this.$store.state.currentProject.languages);
             },
+            projectList : function () {
+                return this.$store.state.projectList;
+            },
             translateList : function () {
                 return this.$store.state.currentTranslateList;
             },
@@ -201,36 +204,43 @@
                 return process.env.langTitleMap;
             },
             defaultLang : function () {
-                return process.env.baseLanguage;
+                return this.$store.state.currentProject.baseLang;
             }
         },
-        created : function() {
-            const name = getUrlParameter('name', location.href),
-                  uuid = getUrlParameter('uuid', location.href),
-                  languages = getUrlParameter('languages', location.href);
-            this.$store.dispatch('SET_CURRENT_PROJECT', {name, uuid, languages});
+        async created() {
             this.selectedLang = 'all';
             this.selectSortType = this.$store.state.selectSortType;
-        },
-        mounted : function() {
-            setTimeout(() => {
+
+            try {
+                if (this.projectList.length) {
+                    this.setCurrentProject();
+                } else {
+                    const projectList = await this.$store.dispatch('FETCH_PROJECT_LIST');
+                    if (projectList.length) {
+                        this.setCurrentProject();
+                    }
+                }
+
                 this.$store.dispatch('SET_LOADING', true);
-                this.$store.dispatch('FETCH_TRANSLATE_LIST').then((res) => {
-                    this.renderTranslateList = false;
-                    setTimeout(() => {
-                        this.renderTranslateList = true;
-                        this.$store.dispatch('SET_LOADING', false);
-                    }, 0);
-                }).catch((err) => {
-                    this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
-                });
-            }, 0);
+                this.renderTranslateList = false;
+                await this.$store.dispatch('FETCH_TRANSLATE_LIST');
+                setTimeout(() => {
+                    this.renderTranslateList = true;
+                    this.$store.dispatch('SET_LOADING', false);
+                }, 0);
+            } catch(err) {
+                this.axiosNoAuthCheck(err) ? this.$router.push('/login') : alert(`error: ${err}`);
+            }
         },
         beforeDestroy : function() {
             this.renderTranslateList = false;
             this.$store.dispatch('SET_TRANSLATE_LIST', []);
         },
         methods : {
+            setCurrentProject: function() {
+                const name = getUrlParameter('name', location.href);
+                this.$store.dispatch('SET_CURRENT_PROJECT', {name});
+            },
             includeCheck: function(search, translate) {
                 return translate.indexOf(search) !== -1;
             },

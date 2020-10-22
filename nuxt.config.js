@@ -24,11 +24,13 @@ export default {
       'de' : '독일어',
       'zh' : '중국어'
     },
-    baseLanguage: 'ko',
     tokenKey: 'local-access-token'
   },
 
-  css: ['~/assets/styles/main.scss'],
+  css: [
+      '~/assets/styles/main.scss',
+      'vue-multiselect/dist/vue-multiselect.min.css'
+  ],
 
   plugins: [
     '~plugins/GlobalComponents.js',

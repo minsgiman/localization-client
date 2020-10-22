@@ -4,7 +4,6 @@ import qs from "qs";
 
 const api = process.env.baseUrl;
 const supportLangs = process.env.suportLanguages;
-const baseLang = process.env.baseLanguage;
 const tokenKey = process.env.tokenKey;
 
 function ajaxNoAuthCheck(error) {
@@ -144,7 +143,6 @@ const localeAPI = {
       let i, len, dataObj = {
           project: projectData.name,
           uuid: projectData.uuid,
-          base: strData[baseLang] ? strData[baseLang] : '',
           tag: strData.tag ? strData.tag : ''
       };
       for (i = 0, len = supportLangs.length; i < len; i+=1) {
@@ -162,7 +160,6 @@ const localeAPI = {
         let i, len, dataObj = {
             strid: strData.localeObj.strid,
             tag: strData.localeObj.tag,
-            base: strData.localeObj.base ? strData.localeObj.base : '',
             project: strData.project
         };
         for (i = 0, len = supportLangs.length; i < len; i+=1) {
@@ -202,17 +199,17 @@ const localeAPI = {
         'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
       }, params: { uuid }})
     },
-    updateProject: ({name, languages}) => {
+    updateProject: ({name, languages, base}) => {
       return axios.put(
-    `${api}/projects/${name}`, qs.stringify({languages}),
+    `${api}/projects/${name}`, qs.stringify({languages, base}),
     {headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`
       }})
     },
-    createProject: ({name, languages}) => {
+    createProject: ({name, languages, base}) => {
       return axios.post(
-    `${api}/projects`, qs.stringify({name, languages}),
+    `${api}/projects`, qs.stringify({name, languages, base}),
     {headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': `Bearer ${localStorage.getItem(tokenKey)}`

@@ -165,7 +165,7 @@
         methods : {
             selectProject: function(projectJSON) {
                 //this.$store.dispatch('SET_CURRENT_PROJECT', projectJSON);
-                this.$router.push('/project?' + 'name=' + projectJSON.name + '&uuid=' + projectJSON.uuid + '&languages=' + projectJSON.languages);
+                this.$router.push('/project?' + 'name=' + projectJSON.name);
             },
             showLanguageSelectDlg: function(project) {
                 this.selectedProject = project;

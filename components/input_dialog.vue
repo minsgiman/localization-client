@@ -21,12 +21,18 @@
               <h2>{{title}}</h2>
             </div>
             <div class="content_wrap">
-              <span>Project의 언어를 선택하세요 : </span>
-              <div id='check_country'>
-                    <span class="check_wrap" v-for="lang in supportLanguages">
+              <span>* Project의 언어를 선택하세요 : </span>
+              <div class="check-cont">
+                    <span class="check-cont__inputs" v-for="lang in supportLanguages">
                         <input type="checkbox" :id="lang" :value="lang" v-model="selectLanguages">
                         <label :for="lang">{{langTitleMap[lang]}}</label>
                     </span>
+              </div>
+              <div class="base-select-cont">
+                    <p class="base-select-cont__tit">* Base언어를 선택하세요</p>
+                    <multiselect v-model="selectBaseLang" :options="selectLanguages"
+                                 :searchable="false" :close-on-select="true" :show-labels="false"  :allow-empty="false"
+                                 placeholder="Pick a value"></multiselect>
               </div>
             </div>
 
@@ -81,12 +87,14 @@
             return {
                 projectName: '',
                 dlgStatus: '',
-                selectLanguages: []
+                selectLanguages: [],
+                selectBaseLang: ''
             }
         },
         created : function () {
             this.dlgStatus = 'name';
             this.selectLanguages = ['ko', 'ja', 'en'];
+            this.selectBaseLang = 'ko';
         },
         methods : {
             setDlgStatus: function (status) {
@@ -103,10 +111,16 @@
                     return;
                 }
 
+                const languages = convertLangArrToStr(this.selectLanguages);
+
+                if (!this.selectBaseLang || languages.indexOf(this.selectBaseLang) === -1) {
+                    alert("base언어를 올바르게 선택해주세요.");
+                    return;
+                }
+
                 try {
                     this.$store.dispatch('SET_LOADING', true);
-                    const languages = convertLangArrToStr(this.selectLanguages);
-                    const cResponse = await this.$store.dispatch('CREATE_PROJECT', {name: this.projectName, languages});
+                    const cResponse = await this.$store.dispatch('CREATE_PROJECT', {name: this.projectName, languages, base: this.selectBaseLang});
                     if (cResponse && cResponse.code === 'ok') {
                         await this.$store.dispatch('FETCH_PROJECT_LIST');
                         this.closeDlg();
