@@ -71,7 +71,7 @@
             </div>
             <div class="tr-search_wrap">
               <div class="input_txt_area">
-                <input type="text" v-model="trSearch" placeholder="번역검색(By 한국어, 일본어)">
+                <input type="text" v-model="trSearch" placeholder="번역검색(By Base)">
                 <button v-show="trSearch" @click="() => {this.trSearch = '';}" class="btn_del" tabindex="-1">
                   <img src="~assets/img/btn-input-text-delete.png">
                 </button>

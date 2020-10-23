@@ -14,7 +14,7 @@ export default {
   },
 
   env: {
-    baseUrl: process.env.BASE_URL || 'http://10.161.240.93:10000',
+    baseUrl: process.env.BASE_URL || 'http://127.0.0.1:10000', //'http://10.161.240.93:10000'
     suportLanguages: ['ko', 'ja', 'en', 'es', 'de', 'zh'],
     langTitleMap: {
       'ko' : '한국어',

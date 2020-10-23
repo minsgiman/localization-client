@@ -5,7 +5,7 @@
                 <div class="content_wrap">
                     <h2>{{title}}</h2>
                     <div class="search_wrap">
-                        <input class="search_input" v-model="searchStr" type="search" placeholder="한글 검색" @keyup.enter="searchTranslate()">
+                        <input class="search_input" v-model="searchStr" type="search" placeholder="한국어, 일본어 검색" @keyup.enter="searchTranslate()">
                         <button class="search_btn" @click="searchTranslate">검색</button>
                     </div>
                     <div v-if="translateList.length && !isLoading" class="locale_item_wrap">
