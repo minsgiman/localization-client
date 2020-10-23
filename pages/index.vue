@@ -23,14 +23,10 @@
                     :selectable="tableProps.selectable">
             </tree-table>
         </div>
-        <div v-if="isAdmin" class="create_project acc_wrap">
-          <a class="btn-3d blue" v-on:click="showAccCreateDlg = true">계정 생성</a>
-        </div>
-        <div class="create_project search_wrap">
-            <a class="btn-3d blue" v-on:click="showSearchDlg = true">{{searchTxt}}</a>
-        </div>
-        <div class="create_project">
-            <a class="btn-3d blue" v-on:click="showInputDlg = true">{{projectCreateTxt}}</a>
+        <div class="manage-btns-wrap">
+            <div v-if="isAdmin" v-ripple="'rgba(255, 255, 255, 0.35)'" @click="showAccCreateDlg = true" class="btn-ripple style-blue">계정 생성</div>
+            <div v-ripple="'rgba(255, 255, 255, 0.35)'" @click="showSearchDlg = true" class="btn-ripple style-blue">{{searchTxt}}</div>
+            <div v-ripple="'rgba(255, 255, 255, 0.35)'" @click="showInputDlg = true" class="btn-ripple style-blue">{{projectCreateTxt}}</div>
         </div>
         <input_dlg
                 v-if="showInputDlg"
@@ -237,18 +233,12 @@
             width:700px;
         }
 
-        .create_project {
-            position:fixed;
-            right:140px;
-            bottom:80px;
-            &.search_wrap {
-                bottom: 196px;
-                .btn-3d {
-                    font-size: 18px;
-                }
-            }
-            &.acc_wrap {
-              bottom: 300px;
+        .manage-btns-wrap {
+            position: absolute;
+            right: -260px;
+            top: 600px;
+            .btn-ripple {
+                margin-bottom:60px;
             }
         }
     }
