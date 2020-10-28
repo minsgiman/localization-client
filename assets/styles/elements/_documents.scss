@@ -1,9 +1,14 @@
 body {
-  font-family: $font-family-sans;
-  color: $color-text;
-  overflow-y: overlay;
+    font-family: $font-family-sans;
+    color: $color-text;
+    overflow-y: overlay;
 }
 
-div, input, textarea, select, button, table {
-  font-family: $font-family-gothic;
+div,
+input,
+textarea,
+select,
+button,
+table {
+    font-family: $font-family-gothic;
 }

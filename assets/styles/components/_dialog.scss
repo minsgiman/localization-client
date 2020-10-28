@@ -1,45 +1,46 @@
 .dialog {
-    position:fixed;
-    top:100px;
-    .dimmed{
-        position:fixed;
-        top:0;
-        left:0;
-        right:0;
-        bottom:0;
-        background:rgba(0,0,0,.6);
-        z-index:130;
+    position: fixed;
+    top: 100px;
+    .dimmed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 130;
         display: block;
     }
-    .ly_pop{
-        position:fixed;
-        top:30%;
-        left:35%;
-        width:34%;
+    .ly_pop {
+        position: fixed;
+        top: 30%;
+        left: 35%;
+        width: 34%;
         padding: 10px 30px 30px 30px;
-        z-index:200;
-        background:#fff;
-        box-sizing:border-box;
-        .ly_tit{
-            margin-top:20px;
+        z-index: 200;
+        background: #fff;
+        box-sizing: border-box;
+        .ly_tit {
+            margin-top: 20px;
         }
     }
-    .content_wrap{
-        margin-top:40px;font-size:19px;
-        input{
-            font-size:19px;
-            height:30px;
+    .content_wrap {
+        margin-top: 40px;
+        font-size: 19px;
+        input {
+            font-size: 19px;
+            height: 30px;
         }
         .check-cont {
             margin-top: 10px;
             &__inputs {
-                position:relative;
-                display:inline-block;
-                width:110px;
+                position: relative;
+                display: inline-block;
+                width: 110px;
                 height: 36px;
-                margin-right:20px;
+                margin-right: 20px;
                 input {
-                    height:100%;
+                    height: 100%;
                     vertical-align: middle;
                 }
                 label {

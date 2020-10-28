@@ -3,31 +3,31 @@ $btn-color-white-gray: #cccccc !default;
 $btn-color-dark-gray: #555555 !default;
 
 $colors-btn-green: (
-  "bg": #9abf7f,
-  "active-bg": #87a86f,
-  "shadow": #87a86f
+    "bg": #9abf7f,
+    "active-bg": #87a86f,
+    "shadow": #87a86f
 ) !default;
 
 $colors-btn-purple: (
-  "bg": #cb99c5,
-  "active-bg": #BA8CB5,
-  "shadow": #AD83A8
+    "bg": #cb99c5,
+    "active-bg": #ba8cb5,
+    "shadow": #ad83a8
 ) !default;
 
 $colors-btn-cyan: (
-  "bg": #7fccde,
-  "active-bg": #70B4C4,
-  "shadow": #73B9C9
+    "bg": #7fccde,
+    "active-bg": #70b4c4,
+    "shadow": #73b9c9
 ) !default;
 
 $colors-btn-red: (
-  "bg": #fa5a5a,
-  "active-bg": #ff4c4b,
-  "shadow": #E04342
+    "bg": #fa5a5a,
+    "active-bg": #ff4c4b,
+    "shadow": #e04342
 ) !default;
 
 .btn-ripple {
-    width:200px;
+    width: 200px;
     height: 50px;
     line-height: 50px;
     border-radius: 25px;
@@ -47,96 +47,96 @@ $colors-btn-red: (
 }
 
 .btn-download {
-  display: inline-block;
-  position: relative;
-  width: 180px;
-  height: 50px;
-  margin-right:20px;
-  font-size:14px;
-  padding: 15px 25px;
-  text-align: center;
-  color: white;
+    display: inline-block;
+    position: relative;
+    width: 180px;
+    height: 50px;
+    margin-right: 20px;
+    font-size: 14px;
+    padding: 15px 25px;
+    text-align: center;
+    color: white;
 
-  &.rounded {
-    border-radius: 10px;
-  }
-
-  &:active {
-    top: 4px;
-  }
-
-  &.green {
-    box-shadow: 0px 4px 0px map_get($colors-btn-green, "shadow");
-    background-color: map_get($colors-btn-green, "bg");
-    &:active {
-      box-shadow: 0 0 map_get($colors-btn-green, "shadow");
-      background-color: map_get($colors-btn-green, "active-bg");
+    &.rounded {
+        border-radius: 10px;
     }
-  }
 
-  &.red {
-    box-shadow:0px 4px 0px map_get($colors-btn-red, "shadow");
-    background-color: map_get($colors-btn-red, "bg");
     &:active {
-      box-shadow: 0 0 map_get($colors-btn-red, "shadow");
-      background-color: map_get($colors-btn-red, "active-bg");
+        top: 4px;
     }
-  }
 
-  &.purple {
-    box-shadow:0px 4px 0px map_get($colors-btn-purple, "shadow");
-    background-color: map_get($colors-btn-purple, "bg");
-    &:active {
-      box-shadow: 0 0 map_get($colors-btn-purple, "shadow");
-      background-color: map_get($colors-btn-purple, "active-bg");
+    &.green {
+        box-shadow: 0px 4px 0px map_get($colors-btn-green, "shadow");
+        background-color: map_get($colors-btn-green, "bg");
+        &:active {
+            box-shadow: 0 0 map_get($colors-btn-green, "shadow");
+            background-color: map_get($colors-btn-green, "active-bg");
+        }
     }
-  }
 
-  &.cyan {
-    box-shadow:0px 4px 0px map_get($colors-btn-cyan, "shadow");
-    background-color: map_get($colors-btn-cyan, "bg");
-    &:active {
-      box-shadow: 0 0 map_get($colors-btn-cyan, "shadow");
-      background-color: map_get($colors-btn-cyan, "active-bg");
+    &.red {
+        box-shadow: 0px 4px 0px map_get($colors-btn-red, "shadow");
+        background-color: map_get($colors-btn-red, "bg");
+        &:active {
+            box-shadow: 0 0 map_get($colors-btn-red, "shadow");
+            background-color: map_get($colors-btn-red, "active-bg");
+        }
     }
-  }
+
+    &.purple {
+        box-shadow: 0px 4px 0px map_get($colors-btn-purple, "shadow");
+        background-color: map_get($colors-btn-purple, "bg");
+        &:active {
+            box-shadow: 0 0 map_get($colors-btn-purple, "shadow");
+            background-color: map_get($colors-btn-purple, "active-bg");
+        }
+    }
+
+    &.cyan {
+        box-shadow: 0px 4px 0px map_get($colors-btn-cyan, "shadow");
+        background-color: map_get($colors-btn-cyan, "bg");
+        &:active {
+            box-shadow: 0 0 map_get($colors-btn-cyan, "shadow");
+            background-color: map_get($colors-btn-cyan, "active-bg");
+        }
+    }
 }
 
 .btn-simple {
-    width:110px;
-    height:32px;
-    margin-left:74px;
+    width: 110px;
+    height: 32px;
+    margin-left: 74px;
     background: $color-white;
     border: solid 1px $color-gray;
-    font-size:14px;
-    cursor:pointer;
-    &:hover{
-      background: $color-text;
-      color: $color-white;
-      border:none;
+    font-size: 14px;
+    cursor: pointer;
+    &:hover {
+        background: $color-text;
+        color: $color-white;
+        border: none;
     }
 }
 
-.btn-box{
-  margin-top:50px;
-  text-align:center;
-  clear: both;
-  .btn-b{
-    height:50px;
-    width: 150px;
-    font-size:16px;
-    color:$color-white;
-    border-radius: 25px;
-    padding: 0;
-    margin: 0 5px;
-    cursor:pointer;
-  }
-  .btn-confirm {
-    background: $color-toast-blue;
-    border-color: $color-toast-blue;
-  }
-  .btn-cancel {
-    background: $color-gray;
-    border-color: $color-gray;
-  }
+.btn-box {
+    margin-top: 50px;
+    text-align: center;
+    clear: both;
+    .btn-b {
+        height: 50px;
+        width: 150px;
+        font-size: 16px;
+        color: $color-white;
+        border-radius: 25px;
+        padding: 0;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+    .btn-confirm {
+        background: $color-toast-blue;
+        border-color: $color-toast-blue;
+    }
+    .btn-cancel {
+        background: $color-gray;
+        border-color: $color-gray;
+    }
 }
