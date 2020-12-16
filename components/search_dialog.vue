@@ -94,9 +94,14 @@ export default {
     },
     methods: {
         searchTranslate: function() {
-            if (this.searchStr) {
+            let searchStr = this.searchStr;
+
+            if (searchStr) {
+                searchStr = searchStr.replace(/\(/g, "\\(");
+                searchStr = searchStr.replace(/\)/g, "\\)");
+
                 this.$store
-                    .dispatch("FETCH_SEARCHED_TRANSLATE_LIST", this.searchStr)
+                    .dispatch("FETCH_SEARCHED_TRANSLATE_LIST", searchStr)
                     .then(translateList => {
                         this.translateList = translateList;
                     })
